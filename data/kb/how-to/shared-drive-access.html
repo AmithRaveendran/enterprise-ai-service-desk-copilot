@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Requesting Access to a Shared Drive</title>
+  <meta name="kb-id" content="KB-0011">
+  <meta name="category" content="how-to">
+  <meta name="service" content="File Shares">
+  <meta name="owner" content="Infrastructure">
+  <meta name="last-updated" content="2026-06-05">
+  <script src="/static/analytics.js"></script>
+</head>
+<body>
+  <nav class="intranet-nav">
+    <a href="/">Home</a> | <a href="/it">IT</a> | <a href="/hr">HR</a> | <a href="/search">Search the intranet</a>
+  </nav>
+
+  <main>
+    <h1>Requesting Access to a Shared Drive</h1>
+    <p>Departmental shared drives live on <code>\\files.halcyon-dynamics.example</code>. Each
+    folder has a named <strong>data owner</strong> (usually the department head) who approves
+    access.</p>
+
+    <h2>How to request access</h2>
+    <ol>
+      <li>Open the Service Desk portal and select <strong>Access &gt; Shared Drive Access</strong>.</li>
+      <li>Enter the full path of the folder, for example <code>\\files.halcyon-dynamics.example\Finance\Reports</code>.</li>
+      <li>Choose <strong>Read</strong> or <strong>Read/Write</strong> access.</li>
+      <li>Give a business reason. Requests without a reason are returned.</li>
+      <li>The data owner approves or rejects the request. Access is granted within
+      <strong>2 business days</strong> of approval.</li>
+    </ol>
+
+    <h2>Mapping the drive</h2>
+    <p>On Windows, open File Explorer, right-click <strong>This PC</strong>, choose
+    <strong>Map network drive</strong>, pick a letter and enter the folder path. Tick
+    <em>Reconnect at sign-in</em>. On macOS, use <strong>Finder &gt; Go &gt; Connect to
+    Server</strong> and enter <code>smb://files.halcyon-dynamics.example/Finance</code>.</p>
+    <p>You must be on the corporate network or connected to the VPN. Shared drives are not
+    available on Halcyon-BYOD or Halcyon-Guest Wi-Fi.</p>
+
+    <h2>Restricted folders</h2>
+    <p>Folders containing <strong>Confidential</strong> or <strong>Restricted</strong> data (see the
+    Information Security Policy, POL-0005) need extra approval from the Security team, and access
+    is reviewed every <strong>90 days</strong>. Access that is not re-confirmed is removed
+    automatically.</p>
+
+    <h2>"Access denied" after approval</h2>
+    <ul>
+      <li>Sign out of Windows and back in so your new group membership is applied.</li>
+      <li>Disconnect and remap the drive.</li>
+      <li>If it still fails after 4 hours, reply to your request ticket.</li>
+    </ul>
+  </main>
+
+  <footer class="intranet-footer">
+    <p>&copy; 2026 Halcyon Dynamics Intranet. Internal use only. | <a href="/privacy">Privacy</a> | <a href="/feedback">Give feedback on this page</a></p>
+  </footer>
+</body>
+</html>

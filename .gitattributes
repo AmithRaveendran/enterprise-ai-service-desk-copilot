@@ -1,0 +1,5 @@
+# Normalise line endings to LF everywhere, so document content hashes (used for idempotent
+# ingestion) are identical on Windows, macOS and Linux.
+* text=auto eol=lf
+
+*.pdf binary

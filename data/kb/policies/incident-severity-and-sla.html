@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Incident Severity Levels and Service Level Agreements</title>
+  <meta name="kb-id" content="POL-0002">
+  <meta name="category" content="policy">
+  <meta name="service" content="Service Desk">
+  <meta name="owner" content="IT Service Management">
+  <meta name="last-updated" content="2026-07-30">
+  <link rel="stylesheet" href="/static/intranet.css">
+  <script src="/static/analytics.js"></script>
+</head>
+<body>
+  <nav class="intranet-nav">
+    <a href="/">Home</a> | <a href="/it">IT</a> | <a href="/hr">HR</a> | <a href="/search">Search the intranet</a>
+  </nav>
+
+  <main>
+    <h1>Incident Severity Levels and Service Level Agreements</h1>
+    <p>This policy defines how the IT Service Desk prioritises incidents and the response and
+    resolution targets (SLAs) that apply to each priority. It applies to all incidents raised
+    through the Service Desk portal, by phone on extension 4357, or by email to
+    servicedesk@halcyon-dynamics.example.</p>
+
+    <h2>Priority definitions</h2>
+    <p>Priority is set from <strong>impact</strong> (how many people or how critical the service)
+    and <strong>urgency</strong> (how quickly the business is harmed).</p>
+    <ul>
+      <li><strong>P1 – Critical:</strong> a business-critical service is unavailable for many users
+      or a whole site, or there is an active security breach. Examples: company-wide Email outage,
+      VPN down for all remote staff, ransomware detected.</li>
+      <li><strong>P2 – High:</strong> a critical service is degraded, or a single critical user or
+      team cannot work, with no workaround. Examples: Finance cannot run payroll, a compromised
+      account.</li>
+      <li><strong>P3 – Medium:</strong> a single user or small group is affected and a workaround
+      exists, or a non-critical service is down. Examples: one user's Outlook will not open, a
+      printer fault.</li>
+      <li><strong>P4 – Low:</strong> minor issues, questions, and standard service requests.
+      Examples: how-to questions, a software install request.</li>
+    </ul>
+
+    <h2>Service level targets</h2>
+    <table>
+      <thead>
+        <tr><th>Priority</th><th>First response</th><th>Resolution target</th><th>Hours</th><th>Updates to requester</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>P1 – Critical</td><td>15 minutes</td><td>4 hours</td><td>24 x 7</td><td>Every 30 minutes</td></tr>
+        <tr><td>P2 – High</td><td>30 minutes</td><td>8 hours</td><td>24 x 7</td><td>Every 2 hours</td></tr>
+        <tr><td>P3 – Medium</td><td>4 business hours</td><td>3 business days</td><td>Business hours</td><td>Daily</td></tr>
+        <tr><td>P4 – Low</td><td>1 business day</td><td>10 business days</td><td>Business hours</td><td>On change of status</td></tr>
+      </tbody>
+    </table>
+    <p>Business hours are 08:00 to 18:00, Monday to Friday, local office time, excluding public
+    holidays. The SLA clock pauses while a ticket is in the <em>Waiting for Requester</em>
+    status.</p>
+
+    <h2>Raising a P1 or P2</h2>
+    <p>P1 and P2 incidents must be reported <strong>by phone</strong> on extension 4357 so that the
+    on-call engineer is paged immediately. Do not rely on a portal ticket or email alone for a
+    P1. During a P1, the current status is published on
+    https://status.halcyon-dynamics.example, and a Major Incident Manager coordinates the
+    response.</p>
+
+    <h2>Escalation</h2>
+    <p>If an SLA target is at risk, the ticket is escalated automatically to the team lead at 75%
+    of the target time and to the IT Service Manager at 100%. Requesters may also ask for an
+    escalation by replying to the ticket with the word <em>ESCALATE</em> in the subject line.</p>
+
+    <h2>Reopening tickets</h2>
+    <p>A resolved ticket closes automatically after <strong>5 business days</strong>. Until then,
+    it can be reopened by replying to the resolution email. After closure, a new ticket must be
+    raised that references the old ticket number.</p>
+  </main>
+
+  <footer class="intranet-footer">
+    <p>&copy; 2026 Halcyon Dynamics Intranet. Internal use only. | <a href="/privacy">Privacy</a> | <a href="/feedback">Give feedback on this page</a></p>
+  </footer>
+</body>
+</html>

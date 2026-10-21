@@ -1,0 +1,24 @@
+# Local infrastructure. Phase 0: just PostgreSQL with the pgvector extension.
+# The API container is added in Phase 9.
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    container_name: servicedesk-db
+    environment:
+      POSTGRES_USER: servicedesk
+      POSTGRES_PASSWORD: servicedesk   # local dev only — never reuse in a real deployment
+      POSTGRES_DB: servicedesk
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Scripts in this folder run once, on first start of an empty volume.
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U servicedesk -d servicedesk"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
