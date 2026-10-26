@@ -7,16 +7,29 @@ requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "Amith Raveendran" }]
 dependencies = [
+    "alembic>=1.14",
+    "beautifulsoup4>=4.12",
+    "openai>=1.60",
+    "pgvector>=0.3",
+    "psycopg[binary]>=3.2",
     "pydantic>=2.9",
     "pydantic-settings>=2.6",
+    "pypdf>=5.0",
+    "pyyaml>=6.0",
+    "sqlalchemy>=2.0",
+    "tenacity>=9.0",
+    "tiktoken>=0.8",
+    "typer>=0.15",
 ]
+
+[project.scripts]
+servicedesk = "servicedesk.cli:app"
 
 [dependency-groups]
 dev = [
     "pytest>=8.3",
     "ruff>=0.8",
     "pre-commit>=4.0",
-    "pyyaml>=6.0",
     "fpdf2>=2.8",   # only used by scripts/build_pdfs.py to generate sample PDF docs
 ]
 
@@ -35,6 +48,13 @@ target-version = "py312"
 # E/F = pycodestyle + pyflakes, I = import sorting, B = bugbear, UP = pyupgrade, SIM = simplify
 select = ["E", "F", "I", "B", "UP", "SIM"]
 
+[tool.ruff.lint.flake8-bugbear]
+# Path objects are immutable, so they are safe as default argument values (used by the CLI).
+extend-immutable-calls = ["pathlib.Path"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+markers = [
+    "integration: needs the Docker Postgres database (skipped automatically if it is not running)",
+]

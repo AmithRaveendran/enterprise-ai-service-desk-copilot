@@ -11,8 +11,8 @@ LangGraph, PostgreSQL/pgvector and MCP**.
 | Phase | Scope | Status |
 |---|---|---|
 | 0 | Foundations, local Postgres + pgvector, sample knowledge base | ✅ |
-| 1 | Document ingestion (parse → chunk → embed → store) | ⏳ |
-| 2 | Semantic + hybrid search, first FastAPI endpoints | |
+| 1 | Document ingestion (parse → chunk → embed → store) | ✅ |
+| 2 | Semantic + hybrid search, first FastAPI endpoints | ⏳ |
 | 3 | RAG answers with source citations | |
 | 4 | Service-status and ticket-management tools with input validation | |
 | 5 | Stateful LangGraph workflow | |
@@ -23,7 +23,7 @@ LangGraph, PostgreSQL/pgvector and MCP**.
 
 ## Sample knowledge base
 
-`data/kb/` holds about 20 fictional IT documents for a fictional company, *Halcyon Dynamics*.
+`data/kb/` holds 19 fictional IT documents for a fictional company, *Halcyon Dynamics*.
 They come in three formats (Markdown with front matter, intranet HTML exports, and PDFs) so
 that ingestion has to deal with real-world variety. The PDFs are generated from
 `scripts/pdf_sources/` by `scripts/build_pdfs.py`.
@@ -36,14 +36,21 @@ Prerequisites: Python 3.12+, [uv](https://docs.astral.sh/uv/), Docker Desktop, G
 uv sync                                  # create .venv and install dependencies
 cp .env.example .env                     # then add your OpenAI key
 docker compose up -d                     # start Postgres + pgvector
+uv run alembic upgrade head              # create the database tables
 uv run pytest                            # run the test suite
 ```
 
-Check that pgvector is enabled:
+## Ingesting the knowledge base
 
 ```bash
-docker compose exec db psql -U servicedesk -c "\dx"
+uv run servicedesk ingest --dry-run      # free preview: documents, chunks, token count
+uv run servicedesk ingest                # embed with OpenAI and store in pgvector
+uv run servicedesk chunks data/kb/how-to/vpn-setup.md   # see how one file is chunked
 ```
+
+Ingestion is idempotent. Unchanged files are skipped by content hash, changed files are
+re-embedded, and deleted files are removed. See
+[docs/learning-log/phase-1.md](docs/learning-log/phase-1.md) for how it works.
 
 ## License
 

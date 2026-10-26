@@ -5,7 +5,7 @@
 - `servicedesk.config.Settings`: typed configuration from env vars / `.env` via
   **pydantic-settings**, with API keys wrapped in `SecretStr`.
 - `docker-compose.yml`: PostgreSQL 17 with the **pgvector** extension enabled by an init script.
-- A sample knowledge base of 20 docs for the fictional company *Halcyon Dynamics*:
+- A sample knowledge base of 19 docs for the fictional company *Halcyon Dynamics*:
   12 Markdown, 3 HTML, and 4 PDFs (generated from `scripts/pdf_sources/`).
 - Tests: config behaviour plus data-quality checks on the corpus.
 - Tooling: ruff (lint + format), pytest, pre-commit hooks.
@@ -37,8 +37,10 @@
 - "Why pgvector rather than a dedicated vector DB?" One system to run, transactional
   consistency between documents and their chunks, SQL filtering, and good performance at
   this scale with HNSW indexes.
-- "How do you manage secrets?" Env-based config, SecretStr, `.env` git-ignored, and a
-  `detect-private-key` pre-commit hook.
+- "How do you manage secrets?" Secrets live in a git-ignored `.env`, are wrapped in
+  SecretStr so they don't leak into logs, and a pre-commit hook blocks committed private
+  keys. (That hook does not detect API keys; full secret scanning, e.g. gitleaks, is
+  planned for Phase 9.)
 
 ## Commands
 ```bash

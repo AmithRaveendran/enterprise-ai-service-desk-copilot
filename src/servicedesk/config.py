@@ -32,6 +32,14 @@ class Settings(BaseSettings):
     azure_openai_chat_deployment: str | None = None
     azure_openai_embedding_deployment: str | None = None
 
+    # Embeddings. The dimension must match the vector(N) column in the database.
+    embedding_dimensions: int = 1536
+    embedding_batch_size: int = 100
+
+    # Chunking (measured in tokens, the unit embedding models and LLMs work in)
+    chunk_max_tokens: int = 500
+    chunk_overlap_tokens: int = 50
+
 
 @lru_cache
 def get_settings() -> Settings:
