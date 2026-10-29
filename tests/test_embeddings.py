@@ -40,6 +40,14 @@ def connection_error() -> openai.APIConnectionError:
     return FakeConnectionError()
 
 
+class FakeRateLimitError(openai.RateLimitError):
+    """A 429 with the given error code, built without an HTTP response."""
+
+    def __init__(self, code: str):
+        Exception.__init__(self, f"Error code: 429 - {code}")
+        self.code = code
+
+
 def make_embedder(client, **kwargs) -> OpenAIEmbedder:
     return OpenAIEmbedder(client, model="m", dimensions=8, wait=wait_none(), **kwargs)
 
@@ -68,6 +76,19 @@ def test_gives_up_after_max_attempts():
     with pytest.raises(openai.APIConnectionError):
         make_embedder(client, max_attempts=3).embed(["a"])
     assert len(client.calls) == 3
+
+
+def test_rate_limits_are_retried():
+    client = FakeOpenAIClient(failures=1, error=FakeRateLimitError("rate_limit_exceeded"))
+    assert make_embedder(client).embed(["a"]) == [[0.0]]
+    assert len(client.calls) == 2
+
+
+def test_out_of_credit_is_not_retried():
+    client = FakeOpenAIClient(failures=1, error=FakeRateLimitError("insufficient_quota"))
+    with pytest.raises(openai.RateLimitError):
+        make_embedder(client).embed(["a"])
+    assert len(client.calls) == 1
 
 
 def test_non_retryable_errors_fail_immediately():

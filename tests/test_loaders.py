@@ -75,6 +75,26 @@ def test_html_numbers_ordered_list_items():
     assert "\n5. The data owner approves" in steps
 
 
+def test_html_inline_tags_add_no_spaces_before_punctuation():
+    doc = load_document(KB / "how-to" / "shared-drive-access.html")
+    text = all_text(doc)
+    assert "right-click This PC, choose" in text
+    assert "Access > Shared Drive Access." in text
+    assert " ," not in text and " ." not in text
+
+
+def test_html_block_tags_and_line_breaks_still_separate_words(tmp_path):
+    html = tmp_path / "page.html"
+    html.write_text(
+        "<main><h1>T</h1><p>one<br>two</p>"
+        "<table><tr><th>A</th><th>B</th></tr><tr><td><p>x</p><p>y</p></td><td>z</td></tr></table>"
+        "</main>"
+    )
+    text = all_text(load_document(html))
+    assert "one two" in text
+    assert "A: x y; B: z" in text
+
+
 def test_pdf_metadata_sections_and_pages():
     doc = load_document(KB / "policies" / "information-security-policy.pdf")
     assert doc.doc_id == "POL-0005"
