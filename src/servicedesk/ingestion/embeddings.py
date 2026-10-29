@@ -12,7 +12,7 @@ import openai
 from openai import AzureOpenAI, OpenAI
 from tenacity import (
     Retrying,
-    retry_if_exception_type,
+    retry_if_exception,
     stop_after_attempt,
     wait_exponential_jitter,
 )
@@ -28,6 +28,13 @@ RETRYABLE_ERRORS = (
     openai.APITimeoutError,
     openai.InternalServerError,
 )
+
+
+def is_retryable(exc: BaseException) -> bool:
+    # Running out of credit also arrives as a 429 RateLimitError, but waiting won't fix it.
+    if isinstance(exc, openai.RateLimitError) and exc.code == "insufficient_quota":
+        return False
+    return isinstance(exc, RETRYABLE_ERRORS)
 
 
 class ConfigurationError(RuntimeError):
@@ -60,7 +67,7 @@ class OpenAIEmbedder:
         # Exponential backoff with jitter: wait ~1s, 2s, 4s... plus randomness, so many
         # clients hitting a rate limit don't all retry at the same instant.
         self._retrying = Retrying(
-            retry=retry_if_exception_type(RETRYABLE_ERRORS),
+            retry=retry_if_exception(is_retryable),
             wait=wait or wait_exponential_jitter(initial=1, max=30),
             stop=stop_after_attempt(max_attempts),
             reraise=True,

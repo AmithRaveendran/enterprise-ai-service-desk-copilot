@@ -121,6 +121,8 @@ def _print_preview(path: Path, chunker: Chunker) -> None:
     )
     for source, error in failed:
         console.print(f"[red]FAILED[/red] {source}: {error}")
+    if failed:
+        raise typer.Exit(1)  # same exit code as a real ingest, so CI can use --dry-run as a check
 
 
 def _check_database() -> None:

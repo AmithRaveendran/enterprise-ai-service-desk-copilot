@@ -13,7 +13,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 import yaml
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, Comment, NavigableString, Tag
 from pypdf import PdfReader
 
 from servicedesk.ingestion.models import Section, SourceDocument
@@ -27,6 +27,8 @@ WHITESPACE_RE = re.compile(r"\s+")
 
 HTML_BOILERPLATE_TAGS = ["script", "style", "noscript", "nav", "header", "footer", "aside", "form"]
 HTML_BLOCK_TAGS = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "table", "pre"]
+# Tags that separate words visually even with no whitespace around them in the source.
+HTML_WORD_BREAK_TAGS = {*HTML_BLOCK_TAGS, "br", "div", "ul", "ol", "tr", "td", "th"}
 
 
 class UnsupportedFileTypeError(ValueError):
@@ -170,7 +172,7 @@ def _html_sections(root: Tag) -> list[Section]:
             level = int(el.name[1:])
             while stack and stack[-1][0] >= level:
                 stack.pop()
-            stack.append((level, _clean(el.get_text(" "))))
+            stack.append((level, _html_text(el)))
         elif el.name == "table":
             blocks.append(_html_table(el))
         elif is_list_item:
@@ -182,14 +184,29 @@ def _html_sections(root: Tag) -> list[Section]:
         elif el.name == "pre":
             blocks.append(el.get_text())
         else:
-            blocks.append(_clean(el.get_text(" ")))
+            blocks.append(_html_text(el))
         previous_was_list_item = is_list_item
     flush()
     return sections
 
 
+def _html_text(el: Tag) -> str:
+    """Visible text of an element. Unlike get_text(" "), inline tags (<strong>, <code>, <a>)
+    get no extra spaces, so "<strong>This PC</strong>, choose" stays "This PC, choose"; block
+    tags and <br> still separate words."""
+    parts: list[str] = []
+    for node in el.descendants:
+        if isinstance(node, Comment):
+            continue
+        if isinstance(node, NavigableString):
+            parts.append(str(node))
+        elif node.name in HTML_WORD_BREAK_TAGS:
+            parts.append(" ")
+    return _clean("".join(parts))
+
+
 def _html_list_item(li: Tag) -> str:
-    text = _clean(li.get_text(" "))
+    text = _html_text(li)
     parent = li.find_parent(["ol", "ul"])
     if parent is not None and parent.name == "ol":
         return f"{len(li.find_previous_siblings('li')) + 1}. {text}"
@@ -197,10 +214,7 @@ def _html_list_item(li: Tag) -> str:
 
 
 def _html_table(table: Tag) -> str:
-    rows = [
-        [_clean(cell.get_text(" ")) for cell in tr.find_all(["th", "td"])]
-        for tr in table.find_all("tr")
-    ]
+    rows = [[_html_text(cell) for cell in tr.find_all(["th", "td"])] for tr in table.find_all("tr")]
     rows = [r for r in rows if r]
     if not rows:
         return ""
