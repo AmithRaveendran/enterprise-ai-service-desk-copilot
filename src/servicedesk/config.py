@@ -40,6 +40,17 @@ class Settings(BaseSettings):
     chunk_max_tokens: int = 500
     chunk_overlap_tokens: int = 50
 
+    # Answers (RAG)
+    rag_top_k: int = 5  # sources given to the model per question
+    # Refuse without calling the model when the best source is less similar than this.
+    # Measured with text-embedding-3-small on our KB: on-topic questions 0.49-0.77,
+    # off-topic 0.08-0.28. Re-measure if you change the embedding model.
+    rag_min_similarity: float = 0.35
+    # gpt-5 family: "minimal" | "low" | "medium" | "high". Leave empty for models without
+    # reasoning (e.g. gpt-4o-mini), which reject the parameter.
+    llm_reasoning_effort: str | None = "low"
+    llm_timeout_seconds: float = 60
+
 
 @lru_cache
 def get_settings() -> Settings:

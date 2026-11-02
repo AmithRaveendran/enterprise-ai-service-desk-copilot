@@ -16,6 +16,8 @@ from servicedesk.ingestion.chunker import Chunker
 from servicedesk.ingestion.embeddings import ConfigurationError, get_embedder
 from servicedesk.ingestion.loaders import load_document
 from servicedesk.ingestion.pipeline import IngestionPipeline, preview
+from servicedesk.rag.answerer import Answerer
+from servicedesk.rag.llm import get_llm
 from servicedesk.search.retriever import Retriever, SearchFilters, SearchMode
 
 app = typer.Typer(help="Enterprise AI Service Desk Copilot tools.", no_args_is_help=True)
@@ -143,6 +145,48 @@ def search(
             hit.content[:80].replace("\n", " ") + "...",
         )
     console.print(table)
+
+
+@app.command()
+def ask(
+    question: Annotated[str, typer.Argument(help="Your IT question, in plain words.")],
+    category: Annotated[str | None, typer.Option(help="e.g. how-to, policy.")] = None,
+    service: Annotated[str | None, typer.Option(help="e.g. VPN, Email.")] = None,
+) -> None:
+    """Answer a question from the knowledge base, with citations (or refuse)."""
+    _check_database()
+    settings = get_settings()
+    try:
+        answerer = Answerer(
+            Retriever(get_sessionmaker(), get_embedder()),
+            get_llm(),
+            top_k=settings.rag_top_k,
+            min_similarity=settings.rag_min_similarity,
+        )
+    except ConfigurationError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+
+    with console.status("Thinking ..."):
+        result = answerer.ask(question, filters=SearchFilters(category=category, service=service))
+
+    if result.refused:
+        console.print(f"[yellow]{result.answer}[/yellow]")
+        console.print(f"[dim]reason: {result.refusal_reason}[/dim]")
+    else:
+        console.print(result.answer, markup=False, highlight=False)
+        table = Table(title="Sources")
+        for column in ["#", "doc_id", "title", "section"]:
+            table.add_column(column)
+        for c in result.citations:
+            page = f" (p. {c.page})" if c.page else ""
+            table.add_row(str(c.number), c.doc_id, c.title, c.section + page)
+        console.print(table)
+    similarity = f"{result.top_similarity:.2f}" if result.top_similarity is not None else "-"
+    console.print(
+        f"[dim]best similarity {similarity} | model {result.model or '-'} | "
+        f"tokens in {result.input_tokens} out {result.output_tokens}[/dim]"
+    )
 
 
 @app.command()

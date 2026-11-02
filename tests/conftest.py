@@ -53,6 +53,28 @@ class FakeEmbedder:
         return sum(len(batch) for batch in self.calls)
 
 
+class FakeLLM:
+    """Offline stand-in for the chat model: returns a canned DraftAnswer (or raises) and
+    records every prompt it was given, so tests can check what the model would have seen."""
+
+    model = "fake-llm"
+
+    def __init__(self, answer: str = "Do the thing [1].", answerable: bool = True, error=None):
+        self.answer = answer
+        self.answerable = answerable
+        self.error = error
+        self.prompts: list[tuple[str, str]] = []
+
+    def generate(self, system, user, schema):
+        from servicedesk.rag.llm import LLMResult
+
+        self.prompts.append((system, user))
+        if self.error:
+            raise self.error
+        parsed = schema(answerable=self.answerable, answer=self.answer)
+        return LLMResult(parsed=parsed, input_tokens=100, output_tokens=20)
+
+
 @pytest.fixture
 def fake_embedder() -> FakeEmbedder:
     return FakeEmbedder()

@@ -3,10 +3,13 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from servicedesk.api import dependencies
 from servicedesk.api.app import app
-from servicedesk.api.dependencies import get_retriever, get_session_factory
+from servicedesk.api.dependencies import get_answerer, get_retriever, get_session_factory
+from servicedesk.rag.answerer import Answerer
 from servicedesk.search.retriever import Retriever
-from tests.conftest import FakeEmbedder
+from tests.conftest import FakeEmbedder, FakeLLM
+from tests.test_embeddings import connection_error
 
 pytestmark = pytest.mark.integration
 
@@ -85,4 +88,69 @@ def test_vector_search_without_api_key_is_503(client, kb_session_factory):
 
 def test_openapi_schema_documents_the_endpoints(client):
     paths = client.get("/openapi.json").json()["paths"]
-    assert {"/health", "/search"} <= paths.keys()
+    assert {"/health", "/search", "/ask"} <= paths.keys()
+
+
+# --- POST /ask ----------------------------------------------------------------------------
+
+
+def use_llm(kb_session_factory, llm, min_similarity=0.0):
+    """Point /ask at the test KB and a fake model. The fake embedder's similarities aren't
+    on OpenAI's scale, so the gate is off unless a test sets it."""
+    retriever = Retriever(kb_session_factory, FakeEmbedder())
+    app.dependency_overrides[get_answerer] = lambda: Answerer(
+        retriever, llm, min_similarity=min_similarity
+    )
+
+
+def test_ask_returns_an_answer_with_citations(client, kb_session_factory):
+    use_llm(kb_session_factory, FakeLLM("Release the job at the printer [2]."))
+    response = client.post("/ask", json={"question": "How does Secure Print work?"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["refused"] is False and body["refusal_reason"] is None
+    assert body["answer"] == "Release the job at the printer [1]."
+    assert len(body["citations"]) == 1
+    citation = body["citations"][0]
+    assert citation["number"] == 1 and citation["content"]
+    assert {"doc_id", "title", "section", "source_path", "chunk_id"} <= citation.keys()
+    assert body["model"] == "fake-llm" and body["usage"] == {
+        "input_tokens": 100,
+        "output_tokens": 20,
+    }
+
+
+def test_ask_refuses_weak_evidence(client, kb_session_factory):
+    llm = FakeLLM()
+    use_llm(kb_session_factory, llm, min_similarity=0.99)
+    body = client.post("/ask", json={"question": "capital of France"}).json()
+    assert body["refused"] is True and body["refusal_reason"] == "no_relevant_sources"
+    assert body["citations"] == [] and body["model"] is None
+    assert llm.prompts == []
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {},
+        {"question": "hi"},  # too short
+        {"question": "x" * 1001},
+        {"question": "vpn drops", "doc_type": "docx"},
+    ],
+)
+def test_ask_rejects_invalid_requests(client, payload):
+    response = client.post("/ask", json=payload)
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"][0] == "body"
+
+
+def test_ask_without_chat_api_key_is_503(client, monkeypatch):
+    monkeypatch.setattr(dependencies, "_llm", lambda: None)
+    response = client.post("/ask", json={"question": "vpn drops"})
+    assert response.status_code == 503
+
+
+def test_ask_is_502_when_the_model_api_fails(client, kb_session_factory):
+    use_llm(kb_session_factory, FakeLLM(error=connection_error()))
+    response = client.post("/ask", json={"question": "How does Secure Print work?"})
+    assert response.status_code == 502
