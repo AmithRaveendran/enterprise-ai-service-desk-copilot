@@ -93,3 +93,20 @@ def session_factory(test_database_url):
         conn.execute(text("TRUNCATE documents RESTART IDENTITY CASCADE"))
     yield sessionmaker(bind=engine, expire_on_commit=False)
     engine.dispose()
+
+
+@pytest.fixture(scope="module")
+def kb_session_factory(test_database_url):
+    """The test database with the whole sample KB ingested (fake embeddings), shared by all
+    tests in a module. Search tests only read, so one ingest per module is enough."""
+    from servicedesk.ingestion.chunker import Chunker
+    from servicedesk.ingestion.pipeline import IngestionPipeline
+
+    engine = create_engine(test_database_url)
+    with engine.begin() as conn:
+        conn.execute(text("TRUNCATE documents RESTART IDENTITY CASCADE"))
+    factory = sessionmaker(bind=engine, expire_on_commit=False)
+    report = IngestionPipeline(factory, FakeEmbedder(), Chunker()).run(KB_DIR)
+    assert not report.failed
+    yield factory
+    engine.dispose()

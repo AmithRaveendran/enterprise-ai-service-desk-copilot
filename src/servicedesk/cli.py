@@ -16,6 +16,7 @@ from servicedesk.ingestion.chunker import Chunker
 from servicedesk.ingestion.embeddings import ConfigurationError, get_embedder
 from servicedesk.ingestion.loaders import load_document
 from servicedesk.ingestion.pipeline import IngestionPipeline, preview
+from servicedesk.search.retriever import Retriever, SearchFilters, SearchMode
 
 app = typer.Typer(help="Enterprise AI Service Desk Copilot tools.", no_args_is_help=True)
 console = Console()
@@ -103,6 +104,57 @@ def chunks(
         page = f", page {chunk.page}" if chunk.page else ""
         console.rule(f"chunk {chunk.index} | {chunk.token_count} tokens{page}")
         console.print(chunk.embedding_text, markup=False, highlight=False)
+
+
+@app.command()
+def search(
+    query: Annotated[str, typer.Argument(help="What to look for, in plain words.")],
+    k: Annotated[int, typer.Option("--k", "-k", min=1, max=20, help="Number of results.")] = 5,
+    mode: Annotated[SearchMode, typer.Option(help="vector, keyword or hybrid.")] = "hybrid",
+    category: Annotated[str | None, typer.Option(help="e.g. how-to, policy.")] = None,
+    doc_type: Annotated[str | None, typer.Option(help="markdown, html or pdf.")] = None,
+    service: Annotated[str | None, typer.Option(help="e.g. VPN, Email.")] = None,
+) -> None:
+    """Search the knowledge base and show the best-matching chunks."""
+    _check_database()
+    try:
+        embedder = None if mode == "keyword" else get_embedder()
+    except ConfigurationError as exc:
+        console.print(f"[red]{exc}[/red] Tip: --mode keyword works without an API key.")
+        raise typer.Exit(1) from exc
+
+    filters = SearchFilters(category=category, doc_type=doc_type, service=service)
+    hits = Retriever(get_sessionmaker(), embedder).search(query, k=k, mode=mode, filters=filters)
+    if not hits:
+        console.print("No results.")
+        return
+
+    table = Table(title=f"{mode} search: {query}")
+    for column in ["#", "score", "vec", "kw", "doc_id", "section", "content"]:
+        table.add_column(column)
+    for rank, hit in enumerate(hits, start=1):
+        table.add_row(
+            str(rank),
+            f"{hit.score:.3f}",
+            str(hit.vector_rank or "-"),  # where vector search ranked it (- = not in its list)
+            str(hit.keyword_rank or "-"),
+            hit.doc_id,
+            hit.section.split(" > ")[-1],
+            hit.content[:80].replace("\n", " ") + "...",
+        )
+    console.print(table)
+
+
+@app.command()
+def serve(
+    host: Annotated[str, typer.Option(help="Interface to listen on.")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(help="Port to listen on.")] = 8000,
+    reload: Annotated[bool, typer.Option(help="Restart when code changes (dev).")] = False,
+) -> None:
+    """Run the HTTP API (docs at http://127.0.0.1:8000/docs)."""
+    import uvicorn  # imported here so other commands don't pay for loading the web stack
+
+    uvicorn.run("servicedesk.api.app:app", host=host, port=port, reload=reload)
 
 
 def _print_preview(path: Path, chunker: Chunker) -> None:

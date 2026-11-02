@@ -1,6 +1,6 @@
 [project]
 name = "servicedesk-copilot"
-version = "0.0.1"
+version = "0.2.0"
 description = "Enterprise AI Service Desk Copilot: an agentic RAG support assistant built with FastAPI, LangGraph, PostgreSQL/pgvector and MCP."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -9,6 +9,7 @@ authors = [{ name = "Amith Raveendran" }]
 dependencies = [
     "alembic>=1.14",
     "beautifulsoup4>=4.12",
+    "fastapi>=0.162.0",
     "openai>=1.60",
     "pgvector>=0.3",
     "psycopg[binary]>=3.2",
@@ -20,6 +21,7 @@ dependencies = [
     "tenacity>=9.0",
     "tiktoken>=0.8",
     "typer>=0.15",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [project.scripts]

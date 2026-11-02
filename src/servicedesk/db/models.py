@@ -8,8 +8,8 @@ embedding live together and are updated in the same transaction.
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, func
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Computed, DateTime, ForeignKey, String, Text, UniqueConstraint, func
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 # Must match the embedding model's output size (settings.embedding_dimensions).
@@ -63,5 +63,16 @@ class Chunk(Base):
     content: Mapped[str] = mapped_column(Text)
     token_count: Mapped[int]
     embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS))
+    # Full-text search words, computed by Postgres from section + content (migration 0002).
+    # Computed tells SQLAlchemy never to write it; deferred skips loading it with each chunk.
+    search_vector: Mapped[str] = mapped_column(
+        TSVECTOR,
+        Computed(
+            "setweight(to_tsvector('english', section), 'A') || "
+            "setweight(to_tsvector('english', content), 'B')",
+            persisted=True,
+        ),
+        deferred=True,
+    )
 
     document: Mapped[Document] = relationship(back_populates="chunks")
