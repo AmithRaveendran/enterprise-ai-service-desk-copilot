@@ -132,3 +132,27 @@ def kb_session_factory(test_database_url):
     assert not report.failed
     yield factory
     engine.dispose()
+
+
+@pytest.fixture
+def desk_session_factory(test_database_url):
+    """The test database with fresh service desk data: the 10 catalogue services and the 5
+    sample tickets (INC-1001..INC-1005). Emptied and re-seeded for every test, because these
+    tests change tickets."""
+    from servicedesk.desk.seed import seed
+
+    engine = create_engine(test_database_url)
+    with engine.begin() as conn:
+        # RESTART IDENTITY: ticket numbers start again at 1001.
+        conn.execute(text("TRUNCATE ticket_comments, tickets, services RESTART IDENTITY CASCADE"))
+    factory = sessionmaker(bind=engine, expire_on_commit=False)
+    seed(factory, ROOT / "data" / "seed")
+    yield factory
+    engine.dispose()
+
+
+@pytest.fixture
+def desk(desk_session_factory):
+    from servicedesk.desk.service import ServiceDesk
+
+    return ServiceDesk(desk_session_factory)

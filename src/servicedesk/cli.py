@@ -1,5 +1,6 @@
 """Command-line interface: `uv run servicedesk --help`."""
 
+import json
 import logging
 from pathlib import Path
 from typing import Annotated
@@ -12,6 +13,10 @@ from sqlalchemy.exc import OperationalError
 
 from servicedesk.config import get_settings
 from servicedesk.db.session import get_engine, get_sessionmaker
+from servicedesk.desk.schemas import GetServiceStatusInput, ServiceHealth
+from servicedesk.desk.seed import seed as seed_database
+from servicedesk.desk.service import DeskError, ServiceDesk
+from servicedesk.desk.tools import TOOLS, run_tool
 from servicedesk.ingestion.chunker import Chunker
 from servicedesk.ingestion.embeddings import ConfigurationError, get_embedder
 from servicedesk.ingestion.loaders import load_document
@@ -190,6 +195,83 @@ def ask(
 
 
 @app.command()
+def seed() -> None:
+    """Load the service catalogue and sample tickets (data/seed/). Safe to re-run."""
+    _check_database("services")
+    report = seed_database(get_sessionmaker())
+    console.print(f"services: {report.services}  sample tickets added: {report.tickets_added}")
+
+
+@app.command()
+def status(
+    service: Annotated[str | None, typer.Argument(help="One service, e.g. VPN.")] = None,
+) -> None:
+    """Show the health of IT services."""
+    _check_database("services")
+    try:
+        result = ServiceDesk(get_sessionmaker()).get_service_status(
+            GetServiceStatusInput(service=service)
+        )
+    except DeskError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    colours = {"operational": "green", "degraded": "yellow", "maintenance": "blue"}
+    table = Table(title="Service status")
+    for column in ["service", "status", "message"]:
+        table.add_column(column)
+    for s in result.services:
+        colour = colours.get(s.status, "red")
+        table.add_row(s.name, f"[{colour}]{s.status}[/{colour}]", s.message or "")
+    console.print(table)
+
+
+@app.command("set-status")
+def set_status(
+    service: Annotated[str, typer.Argument(help="e.g. VPN")],
+    health: Annotated[ServiceHealth, typer.Argument(help="New status.")],
+    message: Annotated[str | None, typer.Option(help="What users should know.")] = None,
+) -> None:
+    """Admin: change a service's status (not available to the assistant)."""
+    _check_database("services")
+    try:
+        result = ServiceDesk(get_sessionmaker()).set_service_status(service, health, message)
+    except DeskError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    console.print(f"{result.name}: {result.status}")
+
+
+@app.command()
+def tools() -> None:
+    """List the service desk tools the assistant can use."""
+    table = Table(title="Tools")
+    for column in ["name", "writes", "arguments", "description"]:
+        table.add_column(column)
+    for t in TOOLS:
+        args = ", ".join(t.input_schema()["properties"])
+        table.add_row(t.name, "yes" if t.writes else "", args, t.description)
+    console.print(table)
+
+
+@app.command()
+def tool(
+    name: Annotated[str, typer.Argument(help="Tool name (see `servicedesk tools`).")],
+    arguments: Annotated[str, typer.Argument(help="Arguments as JSON.")] = "{}",
+) -> None:
+    """Run one tool exactly as the assistant would, and print the JSON result."""
+    _check_database("tickets")
+    try:
+        parsed = json.loads(arguments)
+    except json.JSONDecodeError as exc:
+        console.print(f"[red]Arguments must be JSON: {exc}[/red]")
+        raise typer.Exit(1) from exc
+    result = run_tool(ServiceDesk(get_sessionmaker()), name, parsed)
+    console.print_json(data=result)
+    if not result["ok"]:
+        raise typer.Exit(1)
+
+
+@app.command()
 def serve(
     host: Annotated[str, typer.Option(help="Interface to listen on.")] = "127.0.0.1",
     port: Annotated[int, typer.Option(help="Port to listen on.")] = 8000,
@@ -221,11 +303,11 @@ def _print_preview(path: Path, chunker: Chunker) -> None:
         raise typer.Exit(1)  # same exit code as a real ingest, so CI can use --dry-run as a check
 
 
-def _check_database() -> None:
+def _check_database(table: str = "chunks") -> None:
     """Fail early with a helpful message instead of one error per file."""
     try:
         engine = get_engine()
-        if not inspect(engine).has_table("chunks"):
+        if not inspect(engine).has_table(table):
             console.print("[red]Tables missing. Run: uv run alembic upgrade head[/red]")
             raise typer.Exit(1)
     except OperationalError as exc:

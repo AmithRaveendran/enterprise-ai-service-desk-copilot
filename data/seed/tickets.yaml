@@ -1,0 +1,53 @@
+# Sample tickets so search has something to find. Loaded by `servicedesk seed` only when
+# the tickets table is empty. Fictional people at the fictional Halcyon Dynamics.
+- title: VPN disconnects every few minutes on MacBook
+  description: |-
+    Since updating to macOS 15 my SecureLink VPN drops every 5-10 minutes when the laptop
+    is on battery. Reconnecting works but it keeps happening.
+  category: network
+  priority: P3
+  status: in_progress
+  requester: priya.sharma@halcyon-dynamics.example
+  assignee: network.ops@halcyon-dynamics.example
+  service: vpn
+  comments:
+    - author: network.ops@halcyon-dynamics.example
+      body: This matches known issue KI-0007. Please try switching SecureLink to TCP and let us know.
+
+- title: Outlook will not open after Windows update
+  description: Outlook shows "Cannot start Microsoft Outlook" since this morning's update.
+  category: email
+  priority: P3
+  status: waiting_for_requester
+  requester: tom.oconnor@halcyon-dynamics.example
+  assignee: collab.services@halcyon-dynamics.example
+  service: email
+  comments:
+    - author: collab.services@halcyon-dynamics.example
+      body: Could you try starting Outlook in safe mode (outlook.exe /safe) and tell us if it opens?
+
+- title: Request access to the Finance shared drive
+  description: I have joined the Finance team and need read/write access to the Finance share.
+  category: access
+  priority: P4
+  status: new
+  requester: priya.sharma@halcyon-dynamics.example
+  service: file-shares
+
+- title: Secure Print job not releasing at the 3rd floor printer
+  description: Badge tap works but my print jobs never appear at the 3rd floor printer.
+  category: hardware
+  priority: P3
+  status: resolved
+  requester: li.wei@halcyon-dynamics.example
+  service: printing
+  resolution: The printer had lost its connection to the print server. Restarted the print queue; jobs release normally again.
+
+- title: Lost laptop on the train
+  description: I left my company laptop on the train this evening. It was locked with BitLocker.
+  category: security
+  priority: P2
+  status: closed
+  requester: sam.jones@halcyon-dynamics.example
+  service: hardware
+  resolution: Device remotely wiped and disabled in Intune. Replacement laptop issued.

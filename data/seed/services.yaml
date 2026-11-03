@@ -1,0 +1,76 @@
+# The IT service catalogue (mirrors data/kb/policies/it-service-catalog.html) with each
+# service's starting health. `servicedesk seed` loads it; re-running it updates the
+# catalogue fields but keeps any status set since with `servicedesk set-status`.
+- id: email
+  name: Email
+  description: Microsoft 365 email and calendars
+  owning_team: Collaboration Services
+  criticality: critical
+  status: operational
+
+- id: teams
+  name: Teams
+  description: Chat, meetings and calling
+  owning_team: Collaboration Services
+  criticality: critical
+  status: operational
+
+- id: vpn
+  name: VPN
+  description: SecureLink remote access
+  owning_team: Network Operations
+  criticality: critical
+  status: degraded
+  status_message: >-
+    Some macOS 15 users are disconnected every few minutes. Workaround: switch SecureLink to
+    TCP (see known issue KI-0007). Windows users are not affected.
+
+- id: identity
+  name: Identity
+  description: Halcyon ID single sign-on and MFA
+  owning_team: Identity & Access Management
+  criticality: critical
+  status: operational
+
+- id: wifi
+  name: Wi-Fi
+  description: Office wireless networks
+  owning_team: Network Operations
+  criticality: high
+  status: operational
+
+- id: hr-portal
+  name: HR Portal
+  description: Payslips, leave and personal details
+  owning_team: HR Systems
+  criticality: high
+  status: maintenance
+  status_message: Planned maintenance on Saturday 06:00-10:00. The portal is unavailable during this window.
+
+- id: file-shares
+  name: File Shares
+  description: Departmental shared drives
+  owning_team: Infrastructure
+  criticality: high
+  status: operational
+
+- id: printing
+  name: Printing
+  description: Secure Print (FollowMe) in all offices
+  owning_team: Workplace Technology
+  criticality: medium
+  status: operational
+
+- id: hardware
+  name: Hardware
+  description: Laptops, monitors, peripherals and security keys
+  owning_team: End User Computing
+  criticality: medium
+  status: operational
+
+- id: software
+  name: Software
+  description: Company Portal catalogue and licensing
+  owning_team: End User Computing
+  criticality: medium
+  status: operational

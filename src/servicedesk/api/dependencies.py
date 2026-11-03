@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from servicedesk.config import get_settings
 from servicedesk.db.session import get_sessionmaker
+from servicedesk.desk.service import ServiceDesk
 from servicedesk.ingestion.embeddings import ConfigurationError, Embedder, get_embedder
 from servicedesk.rag.answerer import Answerer
 from servicedesk.rag.llm import StructuredLLM, get_llm
@@ -57,3 +58,9 @@ def get_answerer(retriever: Annotated[Retriever, Depends(get_retriever)]) -> Ans
     return Answerer(
         retriever, llm, top_k=settings.rag_top_k, min_similarity=settings.rag_min_similarity
     )
+
+
+def get_desk(
+    session_factory: Annotated[sessionmaker[Session], Depends(get_session_factory)],
+) -> ServiceDesk:
+    return ServiceDesk(session_factory)
