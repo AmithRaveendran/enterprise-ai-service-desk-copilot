@@ -37,3 +37,39 @@ class SearchResponse(BaseModel):
     count: int
     took_ms: float
     results: list[SearchResult]
+
+
+class AskRequest(BaseModel):
+    question: str = Field(min_length=3, max_length=1000, examples=["How do I reset my password?"])
+    category: str | None = Field(None, max_length=50, examples=["how-to"])
+    doc_type: Literal["markdown", "html", "pdf"] | None = None
+    service: str | None = Field(None, max_length=100, examples=["VPN"])
+
+
+class CitationOut(BaseModel):
+    number: int = Field(description="The [n] marker used in the answer text.")
+    chunk_id: int
+    doc_id: str = Field(examples=["KB-0002"])
+    title: str
+    source_path: str
+    section: str
+    page: int | None = None
+    content: str = Field(description="The cited chunk, so a reader can verify the claim.")
+
+
+class Usage(BaseModel):
+    input_tokens: int
+    output_tokens: int
+
+
+class AskResponse(BaseModel):
+    question: str
+    answer: str = Field(description="The answer with [n] markers, or a refusal message.")
+    refused: bool
+    refusal_reason: Literal["no_relevant_sources", "not_in_sources", "no_valid_citations"] | None
+    citations: list[CitationOut]
+    sources_considered: int = Field(description="Chunks retrieved for the question.")
+    top_similarity: float | None = Field(description="Best cosine similarity among them.")
+    model: str | None = Field(description="Chat model used; null if refused before calling it.")
+    usage: Usage
+    took_ms: float
