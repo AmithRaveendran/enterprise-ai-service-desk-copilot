@@ -15,8 +15,8 @@ LangGraph, PostgreSQL/pgvector and MCP**.
 | 2 | Semantic + hybrid search, first FastAPI endpoints | ✅ |
 | 3 | RAG answers with source citations | ✅ |
 | 4 | Service-status and ticket-management tools with input validation | ✅ |
-| 5 | Stateful LangGraph workflow | ⏳ |
-| 6 | Human approval for writes, error handling, workflow recovery | |
+| 5 | Stateful LangGraph workflow | ✅ |
+| 6 | Human approval for writes, error handling, workflow recovery | ⏳ |
 | 7 | MCP server | |
 | 8 | Automated tests + evaluation dataset | |
 | 9 | Containerisation, CI, architecture/security/deployment docs | |
@@ -95,6 +95,23 @@ CLI and (next) the AI agent. Inputs are validated (company emails, ticket number
 `INC-1042`, enums, lengths, unknown fields rejected), and ticket status changes follow the
 IT policy (for example, closed tickets can't be reopened). See
 [docs/learning-log/phase-4.md](docs/learning-log/phase-4.md).
+
+## Chatting with the assistant
+
+```bash
+uv run servicedesk chat                                   # interactive conversation
+uv run servicedesk chat -m "VPN is broken on my MacBook"  # one message
+uv run servicedesk chat -t <thread-id> -m "Do I already have a ticket for it?"
+```
+
+Or `POST /chat` with `{"message": "...", "thread_id": "..."}` (leave `thread_id` out to start
+a conversation) and `GET /chat/{thread_id}` for the history. The assistant is a LangGraph
+agent: the model decides which tools to call (service status, ticket lookups, and the
+knowledge base, which answers with validated citations), the graph runs them and loops
+until it can reply, with a limit on tool rounds. Conversations are saved in Postgres by
+LangGraph's checkpointer, so a thread continues after a restart. In this phase the agent
+can only read; creating and changing tickets comes in Phase 6, together with human
+approval. See [docs/learning-log/phase-5.md](docs/learning-log/phase-5.md).
 
 ## License
 

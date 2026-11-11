@@ -1,11 +1,14 @@
 """The FastAPI application. Run it with `servicedesk serve`, then open /docs."""
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from importlib.metadata import version
 
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
-from servicedesk.api.routes import ask, desk, health, search
+from servicedesk.api.dependencies import close_checkpointer
+from servicedesk.api.routes import ask, chat, desk, health, search
 from servicedesk.desk.service import ConflictError, DeskError, NotFoundError
 
 # Business-rule errors from the service layer → HTTP status codes. Registered once here,
@@ -23,6 +26,12 @@ async def desk_error_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(status_code=code, content={"detail": str(exc), "code": exc.code})
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    yield  # the app serves requests here
+    close_checkpointer()  # shutdown: close the conversation store's connection pool
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Enterprise AI Service Desk Copilot",
@@ -31,11 +40,13 @@ def create_app() -> FastAPI:
             "IT support answers with cited sources, service status and tickets. "
             "Interactive docs at /docs."
         ),
+        lifespan=lifespan,
     )
     app.include_router(health.router)
     app.include_router(search.router)
     app.include_router(ask.router)
     app.include_router(desk.router)
+    app.include_router(chat.router)
     app.add_exception_handler(DeskError, desk_error_handler)
     return app
 

@@ -7,10 +7,14 @@ from typing import Annotated
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 from sqlalchemy import inspect
 from sqlalchemy.exc import OperationalError
 
+from servicedesk.agent.checkpointer import postgres_checkpointer
+from servicedesk.agent.copilot import Copilot, build_copilot
+from servicedesk.agent.llm import get_chat_model
 from servicedesk.config import get_settings
 from servicedesk.db.session import get_engine, get_sessionmaker
 from servicedesk.desk.schemas import GetServiceStatusInput, ServiceHealth
@@ -269,6 +273,66 @@ def tool(
     console.print_json(data=result)
     if not result["ok"]:
         raise typer.Exit(1)
+
+
+@app.command()
+def chat(
+    message: Annotated[
+        str | None, typer.Option("--message", "-m", help="Send one message and exit.")
+    ] = None,
+    thread: Annotated[
+        str | None, typer.Option("--thread", "-t", help="Continue an earlier conversation.")
+    ] = None,
+) -> None:
+    """Talk to the assistant (the LangGraph agent). Conversations are saved in Postgres:
+    pass --thread <id> to pick one up again, even after a restart."""
+    _check_database("tickets")
+    settings = get_settings()
+    try:
+        model = get_chat_model(settings)
+        answerer = Answerer(
+            Retriever(get_sessionmaker(), get_embedder()),
+            get_llm(),
+            top_k=settings.rag_top_k,
+            min_similarity=settings.rag_min_similarity,
+        )
+    except ConfigurationError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+
+    with postgres_checkpointer(settings.database_url) as checkpointer:
+        copilot = build_copilot(
+            model, ServiceDesk(get_sessionmaker()), answerer, checkpointer, settings
+        )
+        if message is not None:
+            _chat_turn(copilot, message, thread)
+            return
+        console.print("[dim]Type your message. Empty line or 'exit' to quit.[/dim]")
+        while True:
+            text = console.input("[bold cyan]you>[/bold cyan] ").strip()
+            if text.lower() in {"", "exit", "quit"}:
+                break
+            thread = _chat_turn(copilot, text, thread)
+        if thread:
+            console.print(f"[dim]Continue later with: servicedesk chat --thread {thread}[/dim]")
+
+
+def _chat_turn(copilot: Copilot, message: str, thread: str | None) -> str:
+    with console.status("Thinking ..."):
+        turn = copilot.chat(message, thread)
+    for use in turn.tools_used:
+        mark = "[green]ok[/green]" if use.ok else f"[red]{use.error_code}[/red]"
+        console.print(f"[dim]  tool {use.name}: [/dim]{mark}")
+    console.print("[bold green]assistant>[/bold green] ", end="")
+    console.print(turn.reply, markup=False, highlight=False)
+    for c in turn.citations:
+        source = escape(f"[{c['number']}] {c['doc_id']} {c['title']} > {c['section']}")
+        console.print(f"[dim]  {source}[/dim]")
+    console.print(
+        f"[dim]  thread {turn.thread_id} | tokens in {turn.input_tokens} "
+        f"out {turn.output_tokens}[/dim]"
+    )
+    return turn.thread_id
 
 
 @app.command()

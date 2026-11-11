@@ -51,6 +51,10 @@ class Settings(BaseSettings):
     llm_reasoning_effort: str | None = "low"
     llm_timeout_seconds: float = 60
 
+    # Agent (LangGraph)
+    agent_max_tool_rounds: int = 5  # tool rounds per message before the model must answer
+    agent_history_messages: int = 40  # most recent messages sent to the model each call
+
 
 @lru_cache
 def get_settings() -> Settings:
