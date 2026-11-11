@@ -14,8 +14,8 @@ LangGraph, PostgreSQL/pgvector and MCP**.
 | 1 | Document ingestion (parse → chunk → embed → store) | ✅ |
 | 2 | Semantic + hybrid search, first FastAPI endpoints | ✅ |
 | 3 | RAG answers with source citations | ✅ |
-| 4 | Service-status and ticket-management tools with input validation | ⏳ |
-| 5 | Stateful LangGraph workflow | |
+| 4 | Service-status and ticket-management tools with input validation | ✅ |
+| 5 | Stateful LangGraph workflow | ⏳ |
 | 6 | Human approval for writes, error handling, workflow recovery | |
 | 7 | MCP server | |
 | 8 | Automated tests + evaluation dataset | |
@@ -37,6 +37,7 @@ uv sync                                  # create .venv and install dependencies
 cp .env.example .env                     # then add your OpenAI key
 docker compose up -d                     # start Postgres + pgvector
 uv run alembic upgrade head              # create the database tables
+uv run servicedesk seed                  # service catalogue + sample tickets
 uv run pytest                            # run the test suite
 ```
 
@@ -77,6 +78,23 @@ The copilot refuses instead of guessing when the evidence is weak: off-topic que
 stopped before the language model is called, the model can decline when the sources don't
 cover the question, and an answer without a valid citation is never shown. See
 [docs/learning-log/phase-3.md](docs/learning-log/phase-3.md).
+
+## Service status and tickets
+
+```bash
+uv run servicedesk status                     # health of every IT service
+uv run servicedesk tools                      # the tools the assistant can use
+uv run servicedesk tool search_tickets '{"open_only": true}'
+uv run servicedesk tool get_ticket '{"ticket_id": "INC-1001"}'
+```
+
+The API has the same operations: `GET /services/status`, `GET /tickets`, `POST /tickets`,
+`GET /tickets/{id}`, `PATCH /tickets/{id}` and `POST /tickets/{id}/comments`. Each tool is
+defined once (`desk/tools.py`), with a strict input schema, and is shared by the API, the
+CLI and (next) the AI agent. Inputs are validated (company emails, ticket numbers like
+`INC-1042`, enums, lengths, unknown fields rejected), and ticket status changes follow the
+IT policy (for example, closed tickets can't be reopened). See
+[docs/learning-log/phase-4.md](docs/learning-log/phase-4.md).
 
 ## License
 

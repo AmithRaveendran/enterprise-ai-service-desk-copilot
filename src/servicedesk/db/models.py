@@ -1,14 +1,28 @@
 """SQLAlchemy ORM models.
 
-One row in `documents` per source file, and many rows in `chunks` per document. Each chunk
-stores its embedding in a pgvector `vector` column, so the text, its metadata and its
-embedding live together and are updated in the same transaction.
+Knowledge base: one row in `documents` per source file, and many rows in `chunks` per
+document. Each chunk stores its embedding in a pgvector `vector` column, so the text, its
+metadata and its embedding live together and are updated in the same transaction.
+
+Service desk (Phase 4): `services` (the IT service catalogue and each service's current
+health), `tickets` and `ticket_comments`. Enum-like columns (status, priority...) are plain
+strings guarded by CHECK constraints in the migration; Python-side validation lives in
+desk/schemas.py.
 """
 
 from datetime import datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import Computed, DateTime, ForeignKey, String, Text, UniqueConstraint, func
+from sqlalchemy import (
+    Computed,
+    DateTime,
+    ForeignKey,
+    Identity,
+    String,
+    Text,
+    UniqueConstraint,
+    func,
+)
 from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -76,3 +90,59 @@ class Chunk(Base):
     )
 
     document: Mapped[Document] = relationship(back_populates="chunks")
+
+
+class Service(Base):
+    __tablename__ = "services"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True)  # slug, e.g. "vpn"
+    name: Mapped[str] = mapped_column(String(100), unique=True)  # e.g. "VPN"
+    description: Mapped[str] = mapped_column(String(300))
+    owning_team: Mapped[str] = mapped_column(String(100))
+    criticality: Mapped[str] = mapped_column(String(16))
+    status: Mapped[str] = mapped_column(String(32))
+    status_message: Mapped[str | None] = mapped_column(Text)
+    status_updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class Ticket(Base):
+    __tablename__ = "tickets"
+
+    # Numbers start at 1001 so they look like real ticket numbers (shown as INC-1001).
+    id: Mapped[int] = mapped_column(Identity(start=1001), primary_key=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str] = mapped_column(Text)
+    category: Mapped[str] = mapped_column(String(32))
+    priority: Mapped[str] = mapped_column(String(2))
+    status: Mapped[str] = mapped_column(String(32), default="new")
+    requester: Mapped[str] = mapped_column(String(254), index=True)
+    assignee: Mapped[str | None] = mapped_column(String(254))
+    service_id: Mapped[str | None] = mapped_column(ForeignKey("services.id"), index=True)
+    resolution: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), index=True
+    )
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    service: Mapped[Service | None] = relationship()
+    comments: Mapped[list["TicketComment"]] = relationship(
+        back_populates="ticket",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        order_by="TicketComment.id",
+    )
+
+
+class TicketComment(Base):
+    __tablename__ = "ticket_comments"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    ticket_id: Mapped[int] = mapped_column(ForeignKey("tickets.id", ondelete="CASCADE"), index=True)
+    author: Mapped[str] = mapped_column(String(254))
+    body: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    ticket: Mapped[Ticket] = relationship(back_populates="comments")
