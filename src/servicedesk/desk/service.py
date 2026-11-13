@@ -11,14 +11,22 @@ Business rules (from data/kb/policies/incident-severity-and-sla.html):
 - When the requester replies to a ticket that is waiting for them, it goes back to
   in_progress (the SLA clock restarts).
 - P1 and P2 tickets must also be phoned in, so their output carries a notice.
+
+Writes accept an optional idempotency key (Phase 6). The key and the write's result are
+saved in the same transaction as the write, so repeating a write with the same key returns
+the first result instead of writing again. The agent relies on this when it resumes a run
+that crashed after a write but before its checkpoint was saved.
 """
 
 import re
+from typing import Any
 
-from sqlalchemy import func, or_, select
+from pydantic import BaseModel
+from sqlalchemy import func, or_, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session, joinedload, selectinload, sessionmaker
 
-from servicedesk.db.models import Service, Ticket, TicketComment
+from servicedesk.db.models import Service, Ticket, TicketComment, ToolExecution
 from servicedesk.desk.schemas import (
     SLA_TARGETS,
     AddCommentInput,
@@ -116,10 +124,14 @@ class ServiceDesk:
 
     # --- tickets --------------------------------------------------------------------------
 
-    def create_ticket(self, args: CreateTicketInput) -> TicketOut:
+    def create_ticket(
+        self, args: CreateTicketInput, idempotency_key: str | None = None
+    ) -> TicketOut:
         # sessionmaker.begin(): one transaction, committed when the block ends (or rolled
         # back if it raises), so a half-created ticket can never be saved.
         with self.session_factory.begin() as session:
+            if (done := _claim(session, idempotency_key, "create_ticket")) is not None:
+                return TicketOut.model_validate(done)
             service = _find_service(session, args.service) if args.service else None
             ticket = Ticket(
                 title=args.title,
@@ -133,7 +145,7 @@ class ServiceDesk:
             session.add(ticket)
             session.flush()  # INSERT now, so Postgres assigns the id (INC-1001...)
             session.refresh(ticket)  # load the values Postgres filled in (created_at...)
-            return _ticket_out(ticket)
+            return _record(session, idempotency_key, _ticket_out(ticket))
 
     def get_ticket(self, args: GetTicketInput) -> TicketOut:
         with self.session_factory() as session:
@@ -164,9 +176,13 @@ class ServiceDesk:
             tickets = [_summary(t) for t in session.scalars(stmt)]
             return TicketSearchResult(count=len(tickets), tickets=tickets)
 
-    def update_ticket(self, args: UpdateTicketInput) -> TicketOut:
+    def update_ticket(
+        self, args: UpdateTicketInput, idempotency_key: str | None = None
+    ) -> TicketOut:
         changes = args.model_dump(exclude_unset=True, exclude={"ticket_id"})
         with self.session_factory.begin() as session:
+            if (done := _claim(session, idempotency_key, "update_ticket")) is not None:
+                return TicketOut.model_validate(done)
             ticket = _load_ticket(session, args.ticket_id, lock=True)
             current = TicketStatus(ticket.status)
             if current == S.CLOSED:
@@ -189,10 +205,12 @@ class ServiceDesk:
 
             session.flush()
             session.refresh(ticket)
-            return _ticket_out(ticket)
+            return _record(session, idempotency_key, _ticket_out(ticket))
 
-    def add_comment(self, args: AddCommentInput) -> TicketOut:
+    def add_comment(self, args: AddCommentInput, idempotency_key: str | None = None) -> TicketOut:
         with self.session_factory.begin() as session:
+            if (done := _claim(session, idempotency_key, "add_comment")) is not None:
+                return TicketOut.model_validate(done)
             ticket = _load_ticket(session, args.ticket_id, lock=True)
             if ticket.status == S.CLOSED:
                 raise ConflictError(_closed_message(ticket.id))
@@ -201,10 +219,47 @@ class ServiceDesk:
                 ticket.status = S.IN_PROGRESS  # the requester answered: back to IT
             session.flush()
             session.refresh(ticket)
-            return _ticket_out(ticket)
+            return _record(session, idempotency_key, _ticket_out(ticket))
 
 
 # --- helpers ------------------------------------------------------------------------------
+
+
+def _claim(session: Session, key: str | None, tool: str) -> dict[str, Any] | None:
+    """Claim an idempotency key for the write about to happen in this transaction.
+
+    Returns None when the key is new (or there is no key): go ahead and write. Returns the
+    saved result when a write with this key already committed: return it, don't write again.
+    The claim is an INSERT ... ON CONFLICT DO NOTHING. If another transaction holds the same
+    key but hasn't committed yet, Postgres makes this INSERT wait until it does, so two
+    simultaneous calls can't both write. If the write fails, the rollback removes the claim
+    too, so the key can be used again.
+    """
+    if key is None:
+        return None
+    claimed = session.execute(
+        pg_insert(ToolExecution)
+        .values(key=key, tool=tool)
+        .on_conflict_do_nothing()
+        .returning(ToolExecution.key)
+    ).scalar_one_or_none()
+    if claimed is not None:
+        return None
+    done = session.scalars(select(ToolExecution).where(ToolExecution.key == key)).one()
+    if done.tool != tool:
+        raise ConflictError(f"The idempotency key '{key}' was already used for {done.tool}.")
+    return done.result
+
+
+def _record[Out: BaseModel](session: Session, key: str | None, result: Out) -> Out:
+    """Save the write's result under its key, in the same transaction as the write."""
+    if key is not None:
+        session.execute(
+            update(ToolExecution)
+            .where(ToolExecution.key == key)
+            .values(result=result.model_dump(mode="json"))
+        )
+    return result
 
 
 def _find_service(session: Session, name: str) -> Service:

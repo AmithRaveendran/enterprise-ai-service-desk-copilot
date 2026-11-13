@@ -1,6 +1,6 @@
 [project]
 name = "servicedesk-copilot"
-version = "0.5.0"
+version = "0.6.0"
 description = "Enterprise AI Service Desk Copilot: an agentic RAG support assistant built with FastAPI, LangGraph, PostgreSQL/pgvector and MCP."
 readme = "README.md"
 requires-python = ">=3.12"

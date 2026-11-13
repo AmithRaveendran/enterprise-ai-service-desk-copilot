@@ -2,9 +2,12 @@
 
 import json
 import logging
+from collections.abc import Callable
+from functools import partial
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Any
 
+import openai
 import typer
 from rich.console import Console
 from rich.markup import escape
@@ -13,7 +16,7 @@ from sqlalchemy import inspect
 from sqlalchemy.exc import OperationalError
 
 from servicedesk.agent.checkpointer import postgres_checkpointer
-from servicedesk.agent.copilot import Copilot, build_copilot
+from servicedesk.agent.copilot import ChatError, ChatTurn, Copilot, build_copilot, new_thread_id
 from servicedesk.agent.llm import get_chat_model
 from servicedesk.config import get_settings
 from servicedesk.db.session import get_engine, get_sessionmaker
@@ -285,7 +288,10 @@ def chat(
     ] = None,
 ) -> None:
     """Talk to the assistant (the LangGraph agent). Conversations are saved in Postgres:
-    pass --thread <id> to pick one up again, even after a restart."""
+    pass --thread <id> to pick one up again, even after a restart.
+
+    Before the assistant changes anything (creates or updates a ticket, adds a comment) it
+    shows you the change and asks you to approve or reject it."""
     _check_database("tickets")
     settings = get_settings()
     try:
@@ -304,22 +310,75 @@ def chat(
         copilot = build_copilot(
             model, ServiceDesk(get_sessionmaker()), answerer, checkpointer, settings
         )
+        thread = thread or new_thread_id()
         if message is not None:
-            _chat_turn(copilot, message, thread)
+            _settle(copilot, thread)
+            _chat_turn(copilot, thread, lambda: copilot.chat(message, thread))
             return
         console.print("[dim]Type your message. Empty line or 'exit' to quit.[/dim]")
         while True:
+            _settle(copilot, thread)
             text = console.input("[bold cyan]you>[/bold cyan] ").strip()
             if text.lower() in {"", "exit", "quit"}:
                 break
-            thread = _chat_turn(copilot, text, thread)
-        if thread:
+            _chat_turn(copilot, thread, partial(copilot.chat, text, thread))
+        if copilot.status(thread) != "new":
             console.print(f"[dim]Continue later with: servicedesk chat --thread {thread}[/dim]")
 
 
-def _chat_turn(copilot: Copilot, message: str, thread: str | None) -> str:
+def _settle(copilot: Copilot, thread: str) -> None:
+    """A conversation left waiting for approval or half-finished (e.g. the model API failed
+    or the process was stopped) must be dealt with before the next message."""
+    status = copilot.status(thread)
+    if status == "awaiting_approval":
+        console.print("[yellow]This conversation is waiting for your approval.[/yellow]")
+        _chat_turn(copilot, thread, lambda: _ask_approval(copilot, thread))
+    elif status == "interrupted":
+        if typer.confirm("The last turn didn't finish. Resume it now?", default=True):
+            _chat_turn(copilot, thread, lambda: copilot.resume(thread))
+
+
+def _chat_turn(copilot: Copilot, thread: str, run: Callable[[], ChatTurn]) -> None:
+    try:
+        with console.status("Thinking ..."):
+            turn = run()
+        _show_turn(turn)
+        while turn.status == "awaiting_approval":
+            turn = _ask_approval(copilot, thread)
+            _show_turn(turn)
+    except openai.APIError as exc:
+        console.print(
+            f"[red]Language model error ({type(exc).__name__}). The conversation was saved up "
+            f"to the failure: run `servicedesk chat -t {thread}` to resume it.[/red]"
+        )
+    except ChatError as exc:
+        console.print(f"[red]{exc}[/red]")
+
+
+def _ask_approval(copilot: Copilot, thread: str) -> ChatTurn:
+    actions = copilot.pending_actions(thread)
+    for action in actions:
+        _print_action(action)
+    question = "Approve this change?" if len(actions) == 1 else "Approve these changes?"
+    if typer.confirm(question, default=False):
+        with console.status("Working ..."):
+            return copilot.decide(thread, approved=True)
+    reason = console.input("[dim]Reason, or what to do instead (Enter to skip):[/dim] ").strip()
     with console.status("Thinking ..."):
-        turn = copilot.chat(message, thread)
+        return copilot.decide(thread, approved=False, reason=reason or None)
+
+
+def _print_action(action: dict[str, Any]) -> None:
+    table = Table(title=f"Pending change: {action['tool']}", title_justify="left")
+    table.add_column("field", style="dim")
+    table.add_column("value")
+    for name, value in action["arguments"].items():
+        shown = value if isinstance(value, str) else json.dumps(value)
+        table.add_row(name, escape(shown))
+    console.print(table)
+
+
+def _show_turn(turn: ChatTurn) -> None:
     for use in turn.tools_used:
         mark = "[green]ok[/green]" if use.ok else f"[red]{use.error_code}[/red]"
         console.print(f"[dim]  tool {use.name}: [/dim]{mark}")
@@ -332,7 +391,6 @@ def _chat_turn(copilot: Copilot, message: str, thread: str | None) -> str:
         f"[dim]  thread {turn.thread_id} | tokens in {turn.input_tokens} "
         f"out {turn.output_tokens}[/dim]"
     )
-    return turn.thread_id
 
 
 @app.command()

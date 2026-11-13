@@ -76,4 +76,91 @@ def test_model_service_errors_are_502(chat_client):
     tools = AgentTools(None, FakeKnowledgeBase())
     copilot = Copilot(build_graph(BrokenModel(), tools, checkpointer=InMemorySaver()))
     app.dependency_overrides[get_copilot] = lambda: copilot
-    assert TestClient(app).post("/chat", json={"message": "hi"}).status_code == 502
+    response = TestClient(app).post("/chat", json={"message": "hi"})
+    assert response.status_code == 502
+    body = response.json()
+    assert body["code"] == "model_unavailable"
+    assert body["thread_id"]  # chosen before the turn ran, so the client can resume it
+    assert f"/chat/{body['thread_id']}/resume" in body["detail"]
+
+
+# --- approval and recovery (Phase 6) --------------------------------------------------------
+
+TICKET = {
+    "title": "VPN drops every 10 minutes",
+    "description": "It disconnects every 10 minutes since this morning.",
+    "category": "network",
+    "requester": "priya.sharma@halcyon-dynamics.example",
+}
+
+
+def test_a_write_waits_for_approval(chat_client):
+    client = chat_client(tool_call("create_ticket", TICKET))
+    body = client.post("/chat", json={"message": "raise a ticket"}).json()
+    assert body["status"] == "awaiting_approval"
+    assert body["pending_actions"][0]["tool"] == "create_ticket"
+    assert body["pending_actions"][0]["arguments"]["priority"] == "P3"
+
+    history = client.get(f"/chat/{body['thread_id']}").json()
+    assert history["status"] == "awaiting_approval"
+    assert history["pending_actions"] == body["pending_actions"]
+
+
+def test_approve_continues_the_turn(chat_client):
+    client = chat_client(tool_call("create_ticket", TICKET), "Done.")
+    thread = client.post("/chat", json={"message": "raise a ticket"}).json()["thread_id"]
+    response = client.post(f"/chat/{thread}/approve")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "completed" and body["reply"] == "Done."
+    assert body["tools_used"][0]["name"] == "create_ticket"
+    assert client.get(f"/chat/{thread}").json()["status"] == "idle"
+
+
+@pytest.mark.parametrize("payload", [{"reason": "Wrong category"}, None])
+def test_reject_with_or_without_a_reason(chat_client, payload):
+    client = chat_client(tool_call("create_ticket", TICKET), "OK, not raised.")
+    thread = client.post("/chat", json={"message": "raise a ticket"}).json()["thread_id"]
+    response = client.post(f"/chat/{thread}/reject", json=payload)
+    assert response.status_code == 200
+    assert response.json()["tools_used"][0]["error_code"] == "rejected"
+
+
+def test_state_errors_are_409_with_a_code(chat_client):
+    client = chat_client(tool_call("create_ticket", TICKET))
+    thread = client.post("/chat", json={"message": "raise a ticket"}).json()["thread_id"]
+
+    response = client.post("/chat", json={"message": "hello?", "thread_id": thread})
+    assert response.status_code == 409 and response.json()["code"] == "approval_pending"
+    response = client.post(f"/chat/{thread}/resume")
+    assert response.status_code == 409 and response.json()["code"] == "nothing_to_resume"
+
+
+def test_approving_an_unknown_thread_is_404(chat_client):
+    response = chat_client().post("/chat/nope/approve")
+    assert response.status_code == 404 and response.json()["code"] == "thread_not_found"
+
+
+def test_a_reject_reason_is_limited(chat_client):
+    client = chat_client(tool_call("create_ticket", TICKET))
+    thread = client.post("/chat", json={"message": "raise a ticket"}).json()["thread_id"]
+    assert client.post(f"/chat/{thread}/reject", json={"reason": "x" * 501}).status_code == 422
+
+
+def test_a_502_turn_can_be_resumed(chat_client):
+    from tests.test_approval import FlakyModel
+
+    tools = AgentTools(None, FakeKnowledgeBase(kb_answer()))
+    model = FlakyModel(tool_call(KB_TOOL, {"question": "vpn"}), "Restart it [1].", fail_on={2})
+    copilot = Copilot(build_graph(model, tools, checkpointer=InMemorySaver()))
+    app.dependency_overrides[get_copilot] = lambda: copilot
+    client = TestClient(app)
+
+    failed = client.post("/chat", json={"message": "vpn"})
+    assert failed.status_code == 502
+    thread = failed.json()["thread_id"]
+    assert client.get(f"/chat/{thread}").json()["status"] == "interrupted"
+
+    resumed = client.post(f"/chat/{thread}/resume")
+    assert resumed.status_code == 200
+    assert resumed.json()["reply"] == "Restart it [1]."

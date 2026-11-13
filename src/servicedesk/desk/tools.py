@@ -9,6 +9,9 @@ run_tool() is the safe way to call one with untrusted arguments (e.g. JSON an LL
 it validates them, runs the tool and always returns a result dict, never raises for a bad
 call. Errors come back as data ({"ok": false, "error": {...}}) so a model can read what
 went wrong and fix its call instead of the whole conversation crashing.
+
+Write tools also accept an idempotency key (passed on to ServiceDesk): the same key twice
+means the write happens once. Read tools ignore it.
 """
 
 from collections.abc import Callable
@@ -33,7 +36,7 @@ class Tool:
     name: str
     description: str
     input_model: type[BaseModel]
-    handler: Callable[[ServiceDesk, Any], BaseModel]
+    handler: Callable[..., BaseModel]  # (desk, args) or, for writes, (desk, args, idempotency_key=)
     writes: bool  # changes data: needs human approval before an agent may run it
 
     def input_schema(self) -> dict:
@@ -105,7 +108,12 @@ TOOLS: list[Tool] = [
 TOOLS_BY_NAME = {tool.name: tool for tool in TOOLS}
 
 
-def run_tool(desk: ServiceDesk, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+def run_tool(
+    desk: ServiceDesk,
+    name: str,
+    arguments: dict[str, Any],
+    idempotency_key: str | None = None,
+) -> dict[str, Any]:
     """Validate `arguments`, run the tool, and return {"ok": True, "result": ...} or
     {"ok": False, "error": {"code", "message", ...}}. JSON-ready either way."""
     tool = TOOLS_BY_NAME.get(name)
@@ -114,17 +122,25 @@ def run_tool(desk: ServiceDesk, name: str, arguments: dict[str, Any]) -> dict[st
     try:
         args = tool.input_model.model_validate(arguments)
     except ValidationError as exc:
-        # One entry per problem, naming the field, so the caller knows exactly what to fix.
-        problems = [
-            {"field": ".".join(str(p) for p in err["loc"]) or "(input)", "problem": err["msg"]}
-            for err in exc.errors()
-        ]
-        return _error("invalid_input", "The arguments are not valid.", problems=problems)
+        return invalid_input(exc)
     try:
-        result = tool.handler(desk, args)
+        if tool.writes:
+            result = tool.handler(desk, args, idempotency_key=idempotency_key)
+        else:
+            result = tool.handler(desk, args)
     except DeskError as exc:
         return _error(exc.code, str(exc))
     return {"ok": True, "result": result.model_dump(mode="json")}
+
+
+def invalid_input(exc: ValidationError) -> dict[str, Any]:
+    """A validation error as a tool result: one entry per problem, naming the field, so
+    the caller knows exactly what to fix."""
+    problems = [
+        {"field": ".".join(str(p) for p in err["loc"]) or "(input)", "problem": err["msg"]}
+        for err in exc.errors()
+    ]
+    return _error("invalid_input", "The arguments are not valid.", problems=problems)
 
 
 def _error(code: str, message: str, **details: Any) -> dict[str, Any]:

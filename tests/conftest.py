@@ -189,7 +189,12 @@ def desk_session_factory(test_database_url):
     engine = create_engine(test_database_url)
     with engine.begin() as conn:
         # RESTART IDENTITY: ticket numbers start again at 1001.
-        conn.execute(text("TRUNCATE ticket_comments, tickets, services RESTART IDENTITY CASCADE"))
+        conn.execute(
+            text(
+                "TRUNCATE ticket_comments, tickets, services, tool_executions "
+                "RESTART IDENTITY CASCADE"
+            )
+        )
     factory = sessionmaker(bind=engine, expire_on_commit=False)
     seed(factory, ROOT / "data" / "seed")
     yield factory

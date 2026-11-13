@@ -5,8 +5,8 @@ LangGraph merges them in. How a key is merged is its *reducer*:
 
 - messages uses `add_messages`: new messages are appended (and a message with an id that
   already exists replaces it). This list is the conversation memory.
-- citations and tool_rounds have no reducer, so a returned value simply replaces the old
-  one. Both are reset at the start of every user turn (see Copilot.chat).
+- citations, tool_rounds and approvals have no reducer, so a returned value simply
+  replaces the old one. All three are reset at the start of every user turn (Copilot.chat).
 
 The checkpointer saves this state after every node, keyed by thread_id. That is what makes
 the agent *stateful*: the next message on the same thread starts from the saved state.
@@ -25,3 +25,6 @@ class AgentState(TypedDict):
     citations: list[dict[str, Any]]
     # How many times the model has asked for tools during this turn (a runaway-loop guard).
     tool_rounds: int
+    # The person's decisions on write calls, by tool call id: {"approved": bool, "reason"}.
+    # Written by the approve node, read by the tools node (Phase 6).
+    approvals: dict[str, dict[str, Any]]
