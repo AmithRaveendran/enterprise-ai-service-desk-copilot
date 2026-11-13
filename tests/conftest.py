@@ -75,6 +75,51 @@ class FakeLLM:
         return LLMResult(parsed=parsed, input_tokens=100, output_tokens=20)
 
 
+class FakeChatModel:
+    """Offline stand-in for the agent's LangChain chat model.
+
+    Plays back a script: each call returns the next reply. A reply is an AIMessage, a plain
+    string (a final answer), or a callable(messages) -> AIMessage for replies that depend on
+    what the model was sent. Records every call: the messages and the tool_choice used.
+    The graph only needs bind_tools() and invoke(), so no LangChain base class is needed.
+    """
+
+    def __init__(self, *script):
+        self.script = list(script)
+        self.calls: list[dict] = []
+        self.tools: list[dict] = []
+
+    def bind_tools(self, tools, **kwargs):
+        self.tools = tools
+        return _BoundFakeModel(self, kwargs.get("tool_choice"))
+
+    def _reply(self, messages, tool_choice):
+        from langchain_core.messages import AIMessage
+
+        self.calls.append({"messages": list(messages), "tool_choice": tool_choice})
+        if not self.script:
+            raise AssertionError("FakeChatModel ran out of scripted replies")
+        reply = self.script.pop(0)
+        if callable(reply):
+            reply = reply(messages)
+        return AIMessage(reply) if isinstance(reply, str) else reply
+
+
+class _BoundFakeModel:
+    def __init__(self, model: FakeChatModel, tool_choice):
+        self.model, self.tool_choice = model, tool_choice
+
+    def invoke(self, messages):
+        return self.model._reply(messages, self.tool_choice)
+
+
+def tool_call(name: str, args: dict | None = None, call_id: str = "call_1"):
+    """An AIMessage in which the model asks for one tool call."""
+    from langchain_core.messages import AIMessage
+
+    return AIMessage("", tool_calls=[{"name": name, "args": args or {}, "id": call_id}])
+
+
 @pytest.fixture
 def fake_embedder() -> FakeEmbedder:
     return FakeEmbedder()

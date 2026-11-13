@@ -73,3 +73,43 @@ class AskResponse(BaseModel):
     model: str | None = Field(description="Chat model used; null if refused before calling it.")
     usage: Usage
     took_ms: float
+
+
+# Letters, digits, "-" and "_" only: a thread id ends up in URLs and database keys.
+THREAD_ID_PATTERN = r"^[A-Za-z0-9_-]{1,64}$"
+
+
+class ChatRequest(BaseModel):
+    message: str = Field(
+        min_length=1, max_length=2000, examples=["My VPN keeps dropping on my MacBook"]
+    )
+    thread_id: str | None = Field(
+        None,
+        pattern=THREAD_ID_PATTERN,
+        description="Continue this conversation. Leave out to start a new one.",
+    )
+
+
+class ToolUseOut(BaseModel):
+    name: str = Field(examples=["get_service_status"])
+    ok: bool
+    error_code: str | None = None
+
+
+class ChatResponse(BaseModel):
+    thread_id: str = Field(description="Send this back with the next message to continue.")
+    reply: str = Field(description="The assistant's reply, with [n] markers for citations.")
+    citations: list[CitationOut] = Field(description="Knowledge-base sources cited in reply.")
+    tools_used: list[ToolUseOut] = Field(description="Tools the assistant called, in order.")
+    usage: Usage = Field(description="Tokens used by the agent's own model calls.")
+    took_ms: float
+
+
+class ChatMessageOut(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+
+
+class ChatHistory(BaseModel):
+    thread_id: str
+    messages: list[ChatMessageOut]

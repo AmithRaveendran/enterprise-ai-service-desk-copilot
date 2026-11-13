@@ -45,12 +45,10 @@ def make_retrying(max_attempts: int = 5, wait: wait_base | None = None) -> Retry
     )
 
 
-def client_and_model(
-    settings: Settings, kind: Literal["chat", "embedding"], timeout: float = 30
-) -> tuple[OpenAI, str]:
-    """The client for LLM_PROVIDER and the model to call: a model name for OpenAI, a
-    deployment name for Azure. Raises ConfigurationError naming any missing setting."""
-    # max_retries=0: tenacity owns retrying, so the SDK's built-in retries don't multiply ours.
+def model_name(settings: Settings, kind: Literal["chat", "embedding"]) -> str:
+    """Check the credentials for LLM_PROVIDER and return what to call: a model name for
+    OpenAI, a deployment name for Azure. Raises ConfigurationError naming any missing setting.
+    Shared by our own clients and the LangChain chat model the agent uses."""
     if settings.llm_provider == "azure":
         deployment_setting = f"AZURE_OPENAI_{kind.upper()}_DEPLOYMENT"
         deployment = (
@@ -69,6 +67,20 @@ def client_and_model(
         ]
         if missing:
             raise ConfigurationError(f"Missing settings for Azure OpenAI: {', '.join(missing)}")
+        return deployment
+
+    if not settings.openai_api_key:
+        raise ConfigurationError("OPENAI_API_KEY is not set. Add it to .env (see .env.example).")
+    return settings.openai_chat_model if kind == "chat" else settings.openai_embedding_model
+
+
+def client_and_model(
+    settings: Settings, kind: Literal["chat", "embedding"], timeout: float = 30
+) -> tuple[OpenAI, str]:
+    """The client for LLM_PROVIDER and the model (or Azure deployment) to call."""
+    model = model_name(settings, kind)
+    # max_retries=0: tenacity owns retrying, so the SDK's built-in retries don't multiply ours.
+    if settings.llm_provider == "azure":
         client = AzureOpenAI(
             azure_endpoint=settings.azure_openai_endpoint,
             api_key=settings.azure_openai_api_key.get_secret_value(),
@@ -76,12 +88,9 @@ def client_and_model(
             max_retries=0,
             timeout=timeout,
         )
-        return client, deployment
+        return client, model
 
-    if not settings.openai_api_key:
-        raise ConfigurationError("OPENAI_API_KEY is not set. Add it to .env (see .env.example).")
     client = OpenAI(
         api_key=settings.openai_api_key.get_secret_value(), max_retries=0, timeout=timeout
     )
-    model = settings.openai_chat_model if kind == "chat" else settings.openai_embedding_model
     return client, model
