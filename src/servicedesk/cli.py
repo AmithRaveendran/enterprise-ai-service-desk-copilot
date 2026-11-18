@@ -3,6 +3,7 @@
 import json
 import logging
 from collections.abc import Callable
+from enum import StrEnum
 from functools import partial
 from pathlib import Path
 from typing import Annotated, Any
@@ -34,6 +35,7 @@ from servicedesk.search.retriever import Retriever, SearchFilters, SearchMode
 
 app = typer.Typer(help="Enterprise AI Service Desk Copilot tools.", no_args_is_help=True)
 console = Console()
+err_console = Console(stderr=True)  # for `mcp`, whose stdout is the protocol
 
 
 @app.callback()
@@ -405,6 +407,53 @@ def serve(
     uvicorn.run("servicedesk.api.app:app", host=host, port=port, reload=reload)
 
 
+class McpTransport(StrEnum):
+    stdio = "stdio"
+    http = "http"
+
+
+@app.command()
+def mcp(
+    transport: Annotated[
+        McpTransport,
+        typer.Option(help="stdio: started by an MCP client. http: a URL to connect to."),
+    ] = McpTransport.stdio,
+    host: Annotated[str, typer.Option(help="Interface to listen on (http only).")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(help="Port to listen on (http only).")] = 8001,
+) -> None:
+    """Run the MCP server, so MCP clients (Claude Desktop, VS Code, MCP Inspector) can use
+    the service desk tools and read the knowledge base.
+
+    stdio (default): the client starts this command itself and talks to it over
+    stdin/stdout. http: open http://127.0.0.1:8001/mcp in the client."""
+    # With stdio, stdout belongs to the protocol: anything else printed there would corrupt
+    # it. So every message from this command goes to stderr, which clients show as logs.
+    _check_database("tickets", out=err_console)
+    from servicedesk.mcp_server.server import build_mcp_server  # loads the MCP SDK only here
+
+    settings = get_settings()
+    try:
+        answerer = Answerer(
+            Retriever(get_sessionmaker(), get_embedder()),
+            get_llm(),
+            top_k=settings.rag_top_k,
+            min_similarity=settings.rag_min_similarity,
+        )
+        ask_knowledge_base = answerer.ask
+    except ConfigurationError as exc:
+        err_console.print(
+            f"[yellow]{exc} search_knowledge_base will answer 'unavailable'.[/yellow]"
+        )
+        ask_knowledge_base = None
+
+    server = build_mcp_server(ServiceDesk(get_sessionmaker()), ask_knowledge_base)
+    if transport == McpTransport.stdio:
+        server.run("stdio")
+    else:
+        err_console.print(f"MCP server at http://{host}:{port}/mcp (Ctrl+C to stop)")
+        server.run("streamable-http", host=host, port=port)
+
+
 def _print_preview(path: Path, chunker: Chunker) -> None:
     rows, failed = preview(path, chunker)
     table = Table(title=f"Dry run: {path}")
@@ -425,15 +474,15 @@ def _print_preview(path: Path, chunker: Chunker) -> None:
         raise typer.Exit(1)  # same exit code as a real ingest, so CI can use --dry-run as a check
 
 
-def _check_database(table: str = "chunks") -> None:
+def _check_database(table: str = "chunks", out: Console = console) -> None:
     """Fail early with a helpful message instead of one error per file."""
     try:
         engine = get_engine()
         if not inspect(engine).has_table(table):
-            console.print("[red]Tables missing. Run: uv run alembic upgrade head[/red]")
+            out.print("[red]Tables missing. Run: uv run alembic upgrade head[/red]")
             raise typer.Exit(1)
     except OperationalError as exc:
-        console.print(
+        out.print(
             "[red]Cannot connect to Postgres. Is Docker running? Try: docker compose up -d[/red]"
         )
         raise typer.Exit(1) from exc
