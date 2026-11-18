@@ -16,8 +16,8 @@ LangGraph, PostgreSQL/pgvector and MCP**.
 | 3 | RAG answers with source citations | ✅ |
 | 4 | Service-status and ticket-management tools with input validation | ✅ |
 | 5 | Stateful LangGraph workflow | ✅ |
-| 6 | Human approval for writes, error handling, workflow recovery | ⏳ |
-| 7 | MCP server | |
+| 6 | Human approval for writes, error handling, workflow recovery | ✅ |
+| 7 | MCP server | ⏳ |
 | 8 | Automated tests + evaluation dataset | |
 | 9 | Containerisation, CI, architecture/security/deployment docs | |
 
@@ -89,9 +89,10 @@ uv run servicedesk tool get_ticket '{"ticket_id": "INC-1001"}'
 ```
 
 The API has the same operations: `GET /services/status`, `GET /tickets`, `POST /tickets`,
-`GET /tickets/{id}`, `PATCH /tickets/{id}` and `POST /tickets/{id}/comments`. Each tool is
+`GET /tickets/{id}`, `PATCH /tickets/{id}` and `POST /tickets/{id}/comments` (the writes accept an
+`Idempotency-Key` header, so a retried request doesn't create a second ticket). Each tool is
 defined once (`desk/tools.py`), with a strict input schema, and is shared by the API, the
-CLI and (next) the AI agent. Inputs are validated (company emails, ticket numbers like
+CLI and the AI agent. Inputs are validated (company emails, ticket numbers like
 `INC-1042`, enums, lengths, unknown fields rejected), and ticket status changes follow the
 IT policy (for example, closed tickets can't be reopened). See
 [docs/learning-log/phase-4.md](docs/learning-log/phase-4.md).
@@ -109,9 +110,24 @@ a conversation) and `GET /chat/{thread_id}` for the history. The assistant is a 
 agent: the model decides which tools to call (service status, ticket lookups, and the
 knowledge base, which answers with validated citations), the graph runs them and loops
 until it can reply, with a limit on tool rounds. Conversations are saved in Postgres by
-LangGraph's checkpointer, so a thread continues after a restart. In this phase the agent
-can only read; creating and changing tickets comes in Phase 6, together with human
-approval. See [docs/learning-log/phase-5.md](docs/learning-log/phase-5.md).
+LangGraph's checkpointer, so a thread continues after a restart. See
+[docs/learning-log/phase-5.md](docs/learning-log/phase-5.md).
+
+### Approving changes
+
+The assistant can create tickets, update them and add comments, but **never without your
+approval**. When it wants to change something, the turn pauses and shows the exact change:
+
+- CLI: the change is printed as a table; answer `y` to approve, or `n` and an optional
+  reason ("make it P4"), and the assistant proposes a corrected change.
+- API: the response has `"status": "awaiting_approval"` and `pending_actions`. Continue with
+  `POST /chat/{thread_id}/approve` or `POST /chat/{thread_id}/reject` (`{"reason": "..."}`).
+
+If a turn fails part-way (for example the language model API is down), the API answers 502
+with the `thread_id`; `POST /chat/{thread_id}/resume` (or `servicedesk chat -t <id>`) finishes
+it from the last saved step without repeating finished tool calls, and a write that already
+happened is never repeated (idempotency keys). See
+[docs/learning-log/phase-6.md](docs/learning-log/phase-6.md).
 
 ## License
 

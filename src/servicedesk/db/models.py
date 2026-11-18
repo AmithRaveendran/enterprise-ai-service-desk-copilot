@@ -8,6 +8,9 @@ Service desk (Phase 4): `services` (the IT service catalogue and each service's 
 health), `tickets` and `ticket_comments`. Enum-like columns (status, priority...) are plain
 strings guarded by CHECK constraints in the migration; Python-side validation lives in
 desk/schemas.py.
+
+Phase 6 adds `tool_executions`: idempotency keys for writes, so a resumed agent run can't
+create the same ticket twice.
 """
 
 from datetime import datetime
@@ -146,3 +149,15 @@ class TicketComment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     ticket: Mapped[Ticket] = relationship(back_populates="comments")
+
+
+class ToolExecution(Base):
+    """One write that was carried out with an idempotency key, and what it returned
+    (Phase 6). Saved in the same transaction as the write itself."""
+
+    __tablename__ = "tool_executions"
+
+    key: Mapped[str] = mapped_column(String(200), primary_key=True)
+    tool: Mapped[str] = mapped_column(String(64))
+    result: Mapped[dict | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

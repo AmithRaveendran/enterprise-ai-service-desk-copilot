@@ -205,3 +205,94 @@ def test_requester_reply_moves_waiting_ticket_back_to_in_progress(desk):
 def test_it_comment_leaves_waiting_ticket_waiting(desk):
     ticket = desk.add_comment(AddCommentInput(ticket_id=1002, author=IT, body="Any news?"))
     assert ticket.status == "waiting_for_requester" and len(ticket.comments) == 2
+
+
+# --- idempotency keys (Phase 6) ------------------------------------------------------------
+
+
+def ticket_count(session_factory) -> int:
+    with session_factory() as session:
+        return session.scalar(select(func.count()).select_from(Ticket))
+
+
+def test_the_same_key_creates_one_ticket_and_returns_the_first_result(desk, desk_session_factory):
+    first = desk.create_ticket(
+        CreateTicketInput(
+            title="Monitor flickers",
+            description="The external monitor flickers.",
+            category="hardware",
+            requester=PRIYA,
+        ),
+        idempotency_key="k-create-1",
+    )
+    again = desk.create_ticket(
+        CreateTicketInput(
+            title="Monitor flickers",
+            description="The external monitor flickers.",
+            category="hardware",
+            requester=PRIYA,
+        ),
+        idempotency_key="k-create-1",
+    )
+    assert again == first  # the saved result, not a new ticket
+    assert ticket_count(desk_session_factory) == 6  # 5 samples + 1
+
+
+def test_the_same_key_adds_one_comment(desk):
+    comment = AddCommentInput(ticket_id=1003, author=IT, body="Replaced the cable.")
+    desk.add_comment(comment, idempotency_key="k-comment")
+    desk.add_comment(comment, idempotency_key="k-comment")
+    assert len(desk.get_ticket(GetTicketInput(ticket_id=1003)).comments) == 1
+    desk.add_comment(comment)  # no key: every call writes
+    assert len(desk.get_ticket(GetTicketInput(ticket_id=1003)).comments) == 2
+
+
+def test_a_repeated_update_returns_the_first_result_instead_of_conflicting(desk):
+    change = UpdateTicketInput(ticket_id=1003, status="resolved", resolution="Cable replaced.")
+    first = desk.update_ticket(change, idempotency_key="k-update")
+    # Without the key, resolving an already resolved ticket would just apply again; with
+    # it, the call is recognised as the same one and nothing runs.
+    assert desk.update_ticket(change, idempotency_key="k-update") == first
+
+
+def test_a_failed_write_does_not_use_up_its_key(desk, desk_session_factory):
+    bad = UpdateTicketInput(ticket_id=1003, status="closed")  # new → closed isn't allowed
+    with pytest.raises(ConflictError):
+        desk.update_ticket(bad, idempotency_key="k-retry")
+    # The rollback removed the claim, so a corrected call with the same key still runs.
+    good = UpdateTicketInput(ticket_id=1003, status="in_progress")
+    assert desk.update_ticket(good, idempotency_key="k-retry").status == "in_progress"
+
+
+def test_a_key_cannot_be_reused_for_another_tool(desk):
+    desk.add_comment(
+        AddCommentInput(ticket_id=1003, author=IT, body="Looking into it."),
+        idempotency_key="k-shared",
+    )
+    with pytest.raises(ConflictError, match="already used for add_comment"):
+        desk.update_ticket(
+            UpdateTicketInput(ticket_id=1003, priority="P2"), idempotency_key="k-shared"
+        )
+
+
+def test_simultaneous_calls_with_the_same_key_write_once(desk, desk_session_factory):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+
+    start = Barrier(2)
+    args = CreateTicketInput(
+        title="Printer jams",
+        description="Every print job jams on floor 3.",
+        category="hardware",
+        requester=PRIYA,
+    )
+
+    def create(_):
+        start.wait()  # both threads call at (nearly) the same moment
+        return desk.create_ticket(args, idempotency_key="k-race")
+
+    with ThreadPoolExecutor(2) as pool:
+        a, b = pool.map(create, range(2))
+    # The second INSERT ... ON CONFLICT waited for the first transaction, then saw its key.
+    assert a.id == b.id
+    assert ticket_count(desk_session_factory) == 6

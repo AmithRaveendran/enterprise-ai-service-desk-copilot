@@ -41,6 +41,20 @@ def test_create_ticket_is_201(client):
     assert response.json()["number"] == "INC-1006"
 
 
+def test_an_idempotency_key_makes_a_retried_create_safe(client):
+    headers = {"Idempotency-Key": "retry-test-0001"}
+    first = client.post("/tickets", json=NEW_TICKET, headers=headers)
+    again = client.post("/tickets", json=NEW_TICKET, headers=headers)
+    assert first.status_code == again.status_code == 201
+    assert first.json() == again.json()  # the same ticket, not INC-1007
+    assert client.post("/tickets", json=NEW_TICKET).json()["number"] == "INC-1007"
+
+
+def test_a_malformed_idempotency_key_is_422(client):
+    response = client.post("/tickets", json=NEW_TICKET, headers={"Idempotency-Key": "a b"})
+    assert response.status_code == 422
+
+
 def test_create_ticket_validation_is_422(client):
     response = client.post("/tickets", json=NEW_TICKET | {"requester": "li@gmail.com"})
     assert response.status_code == 422

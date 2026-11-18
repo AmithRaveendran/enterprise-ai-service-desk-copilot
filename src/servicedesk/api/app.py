@@ -7,6 +7,7 @@ from importlib.metadata import version
 from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
+from servicedesk.agent.copilot import ChatError, ThreadNotFoundError
 from servicedesk.api.dependencies import close_checkpointer
 from servicedesk.api.routes import ask, chat, desk, health, search
 from servicedesk.desk.service import ConflictError, DeskError, NotFoundError
@@ -23,6 +24,17 @@ ERROR_STATUS = {
 async def desk_error_handler(request: Request, exc: Exception) -> JSONResponse:
     assert isinstance(exc, DeskError)
     code = ERROR_STATUS.get(type(exc), status.HTTP_400_BAD_REQUEST)
+    return JSONResponse(status_code=code, content={"detail": str(exc), "code": exc.code})
+
+
+async def chat_error_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Conversation-state errors: 404 for an unknown thread, otherwise 409 (e.g. a new
+    message while a change is waiting for approval). `code` says which."""
+    assert isinstance(exc, ChatError)
+    if isinstance(exc, ThreadNotFoundError):
+        code = status.HTTP_404_NOT_FOUND
+    else:
+        code = status.HTTP_409_CONFLICT
     return JSONResponse(status_code=code, content={"detail": str(exc), "code": exc.code})
 
 
@@ -48,6 +60,7 @@ def create_app() -> FastAPI:
     app.include_router(desk.router)
     app.include_router(chat.router)
     app.add_exception_handler(DeskError, desk_error_handler)
+    app.add_exception_handler(ChatError, chat_error_handler)
     return app
 
 

@@ -4,7 +4,7 @@ FastAPI validates every response against these and publishes them in the OpenAPI
 (/docs), so API clients know the contract without reading the code.
 """
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -96,8 +96,23 @@ class ToolUseOut(BaseModel):
     error_code: str | None = None
 
 
+class PendingActionOut(BaseModel):
+    id: str = Field(description="The tool call id.")
+    tool: str = Field(examples=["create_ticket"])
+    arguments: dict[str, Any] = Field(
+        description="The validated arguments: exactly what will run if approved."
+    )
+
+
 class ChatResponse(BaseModel):
     thread_id: str = Field(description="Send this back with the next message to continue.")
+    status: Literal["completed", "awaiting_approval"] = Field(
+        description="awaiting_approval: nothing was changed yet. Approve or reject the "
+        "pending_actions with POST /chat/{thread_id}/approve or /reject."
+    )
+    pending_actions: list[PendingActionOut] = Field(
+        description="Changes waiting for approval (empty when completed)."
+    )
     reply: str = Field(description="The assistant's reply, with [n] markers for citations.")
     citations: list[CitationOut] = Field(description="Knowledge-base sources cited in reply.")
     tools_used: list[ToolUseOut] = Field(description="Tools the assistant called, in order.")
@@ -112,4 +127,20 @@ class ChatMessageOut(BaseModel):
 
 class ChatHistory(BaseModel):
     thread_id: str
+    status: Literal["idle", "awaiting_approval", "interrupted"] = Field(
+        description="interrupted: the last turn failed part-way; POST /chat/{thread_id}/resume."
+    )
+    pending_actions: list[PendingActionOut]
     messages: list[ChatMessageOut]
+
+
+class RejectRequest(BaseModel):
+    reason: str | None = Field(
+        None, max_length=500, description="Optional: why, or what to do instead."
+    )
+
+
+class ErrorOut(BaseModel):
+    detail: str
+    code: str = Field(examples=["approval_pending"])
+    thread_id: str | None = None

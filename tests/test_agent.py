@@ -67,9 +67,14 @@ def tool_results(copilot: Copilot, thread_id: str) -> list[dict]:
 # --- tools offered to the model ---------------------------------------------------------
 
 
-def test_the_agent_is_offered_read_only_tools():
-    names = {spec["function"]["name"] for spec in AgentTools(None, FakeKnowledgeBase()).specs}
-    assert names == {KB_TOOL, "get_service_status", "search_tickets", "get_ticket"}
+def test_the_agent_is_offered_the_knowledge_base_and_the_desk_tools():
+    tools = AgentTools(None, FakeKnowledgeBase())
+    names = {spec["function"]["name"] for spec in tools.specs}
+    reads = {KB_TOOL, "get_service_status", "search_tickets", "get_ticket"}
+    writes = {"create_ticket", "update_ticket", "add_comment"}
+    assert names == reads | writes
+    assert {n for n in names if tools.needs_approval(n)} == writes
+    assert "set_service_status" not in names  # admin-only: never a tool
 
 
 def test_tool_schemas_forbid_unknown_arguments():
@@ -166,12 +171,13 @@ def test_knowledge_base_refusal_reaches_the_model_as_not_found():
 # --- safety -----------------------------------------------------------------------------
 
 
-def test_write_tools_are_refused_even_if_the_model_calls_one():
+def test_a_tool_that_isnt_offered_is_refused_even_if_the_model_calls_one():
     model = FakeChatModel(
-        tool_call("create_ticket", {"title": "VPN broken"}), "I can't create tickets yet."
+        tool_call("set_service_status", {"service": "vpn", "status": "operational"}),
+        "I can't change service status.",
     )
     copilot = make_copilot(model)  # desk=None: running the tool would crash, proving it didn't
-    turn = copilot.chat("open a ticket")
+    turn = copilot.chat("mark the VPN as fixed")
     assert turn.tools_used[0].error_code == "not_allowed"
 
 
