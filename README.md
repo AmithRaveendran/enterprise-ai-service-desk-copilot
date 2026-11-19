@@ -17,8 +17,8 @@ LangGraph, PostgreSQL/pgvector and MCP**.
 | 4 | Service-status and ticket-management tools with input validation | ✅ |
 | 5 | Stateful LangGraph workflow | ✅ |
 | 6 | Human approval for writes, error handling, workflow recovery | ✅ |
-| 7 | MCP server | ⏳ |
-| 8 | Automated tests + evaluation dataset | |
+| 7 | MCP server (tools, knowledge base resources, a prompt) | ✅ |
+| 8 | Automated tests + evaluation dataset | ⏳ |
 | 9 | Containerisation, CI, architecture/security/deployment docs | |
 
 ## Sample knowledge base
@@ -128,6 +128,34 @@ with the `thread_id`; `POST /chat/{thread_id}/resume` (or `servicedesk chat -t <
 it from the last saved step without repeating finished tool calls, and a write that already
 happened is never repeated (idempotency keys). See
 [docs/learning-log/phase-6.md](docs/learning-log/phase-6.md).
+
+## Using it from an MCP client
+
+The service desk is also an **MCP server**, so MCP clients (Claude Desktop, Claude Code,
+VS Code, MCP Inspector) can use it directly: 7 tools (service status, ticket search and
+details, the knowledge base, and creating/updating/commenting on tickets), the knowledge base
+articles as resources (`kb://articles`, `kb://articles/KB-0001`), and a "Report an IT issue"
+prompt.
+
+```bash
+uv run servicedesk mcp                                # stdio: the client starts this command
+uv run servicedesk mcp --transport http --port 8001   # or connect to http://127.0.0.1:8001/mcp
+```
+
+- **Claude Code** picks up `.mcp.json` in this folder (it asks before enabling the server).
+- **Claude Desktop** (`claude_desktop_config.json`):
+  ```json
+  { "mcpServers": { "servicedesk": {
+      "command": "uv",
+      "args": ["--directory", "C:/path/to/enterprise-ai-service-desk-copilot", "run", "servicedesk", "mcp"]
+  } } }
+  ```
+- **VS Code** (`.vscode/mcp.json`): `{"servers": {"servicedesk": {"type": "stdio", "command": "uv", "args": ["run", "servicedesk", "mcp"]}}}`
+
+Changes take two calls: the first returns a preview and a `confirmation_token` and changes
+nothing; only the same call with the token writes (once, even if repeated). The server runs
+with the client's environment, so keep the OpenAI key in `.env`. See
+[docs/learning-log/phase-7.md](docs/learning-log/phase-7.md).
 
 ## License
 
