@@ -60,7 +60,8 @@ TOOLS: list[Tool] = [
         name="search_tickets",
         description=(
             "Find existing tickets by requester, status, priority, service or words in the "
-            "text. Use it to check for an existing ticket before creating a new one."
+            "title or description. Use it to check for an existing ticket before creating a "
+            "new one. To look up a ticket by its number (e.g. INC-1003), use get_ticket."
         ),
         input_model=SearchTicketsInput,
         handler=ServiceDesk.search_tickets,

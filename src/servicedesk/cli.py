@@ -454,6 +454,128 @@ def mcp(
         server.run("streamable-http", host=host, port=port)
 
 
+class EvalSuite(StrEnum):
+    all = "all"
+    retrieval = "retrieval"
+    answers = "answers"
+    agent = "agent"
+
+
+@app.command("eval")
+def evaluate(
+    suite: Annotated[EvalSuite, typer.Option(help="Which suite to run.")] = EvalSuite.all,
+    limit: Annotated[
+        int | None, typer.Option(help="Only the first N questions and N agent tasks (quick check).")
+    ] = None,
+    judge: Annotated[bool, typer.Option(help="Grade answers with the LLM judge.")] = True,
+    judge_model: Annotated[
+        str | None, typer.Option(help="Model for the judge (default: the chat model).")
+    ] = None,
+    workers: Annotated[int, typer.Option(help="Cases run at the same time.")] = 4,
+    dataset: Annotated[Path, typer.Option(help="The dataset (JSON Lines).")] = Path(
+        "evals/dataset.jsonl"
+    ),
+    results_path: Annotated[Path, typer.Option("--results", help="Per-case results.")] = Path(
+        "evals/results.json"
+    ),
+    report_path: Annotated[Path, typer.Option("--report", help="The Markdown report.")] = Path(
+        "evals/report.md"
+    ),
+) -> None:
+    """Evaluate retrieval (hit@k, MRR), answers (refusals, citations, grounding and
+    correctness by an LLM judge) and agent task completion; write evals/report.md.
+
+    Uses the real models (costs a little: about 100 model calls for the full run). Agent
+    tasks run against a scratch database, servicedesk_eval, reset to the sample data."""
+    _check_database()
+    from datetime import UTC, datetime
+
+    from langgraph.checkpoint.memory import InMemorySaver
+
+    from servicedesk.evals.database import fresh_desk_database
+    from servicedesk.evals.dataset import agent_tasks, load_dataset, questions
+    from servicedesk.evals.report import render_report
+    from servicedesk.evals.runner import evaluate_agent, evaluate_answers, evaluate_retrieval
+    from servicedesk.openai_client import model_name
+    from servicedesk.rag.llm import OpenAIChat
+
+    cases = load_dataset(dataset)
+    question_cases, tasks = questions(cases)[:limit], agent_tasks(cases)[:limit]
+    settings = get_settings()
+    try:
+        retriever = Retriever(get_sessionmaker(), get_embedder())
+        llm = get_llm()
+        chat_model = get_chat_model(settings) if suite in (EvalSuite.all, EvalSuite.agent) else None
+    except ConfigurationError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+    answerer = Answerer(
+        retriever, llm, top_k=settings.rag_top_k, min_similarity=settings.rag_min_similarity
+    )
+    judge_llm = (
+        OpenAIChat(llm.client, judge_model or llm.model, settings.llm_reasoning_effort)
+        if judge
+        else None
+    )
+    # Running one suite keeps the others' last results, so the report stays complete.
+    results = json.loads(results_path.read_text("utf-8")) if results_path.exists() else {}
+    progress = partial(console.print, style="dim")
+
+    if suite in (EvalSuite.all, EvalSuite.retrieval):
+        console.print(f"[bold]Retrieval[/bold]: {len(question_cases)} questions, 3 modes")
+        results["retrieval"] = evaluate_retrieval(retriever, question_cases, k=settings.rag_top_k)
+    if suite in (EvalSuite.all, EvalSuite.answers):
+        console.print(f"[bold]Answers[/bold]: {len(question_cases)} questions")
+        results["answers"] = evaluate_answers(
+            answerer, question_cases, judge=judge_llm, workers=workers, progress=progress
+        )
+    if suite in (EvalSuite.all, EvalSuite.agent):
+        console.print(f"[bold]Agent[/bold]: {len(tasks)} tasks (scratch database reset)")
+        desk = ServiceDesk(fresh_desk_database(settings.database_url))
+        copilot = build_copilot(chat_model, desk, answerer, InMemorySaver(), settings)
+        results["agent"] = evaluate_agent(copilot, tasks, workers=workers, progress=progress)
+
+    results["run"] = {
+        "date": datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC"),
+        "chat_model": llm.model,
+        "judge_model": judge_llm.model if judge_llm else results.get("run", {}).get("judge_model"),
+        "embedding_model": model_name(settings, "embedding"),
+        "questions": len(question_cases),
+        "answerable": sum(c.answerable for c in question_cases),
+        "out_of_scope": sum(not c.answerable for c in question_cases),
+        "agent_tasks": len(tasks),
+    }
+    results_path.parent.mkdir(parents=True, exist_ok=True)
+    results_path.write_text(json.dumps(results, indent=2, default=str) + "\n", encoding="utf-8")
+    report_path.write_text(render_report(results), encoding="utf-8")
+    _print_eval_summary(results)
+    console.print(f"Report: {report_path}  ·  details: {results_path}")
+
+
+def _print_eval_summary(results: dict[str, Any]) -> None:
+    from servicedesk.evals.report import num, pct
+
+    table = Table(title="Evaluation")
+    table.add_column("Metric")
+    table.add_column("Result", justify="right")
+    if "retrieval" in results:
+        k = results["retrieval"]["summary"]["k"]
+        hybrid = results["retrieval"]["summary"]["modes"]["hybrid"]
+        table.add_row(f"Retrieval hit@{k} (hybrid)", pct(hybrid[f"hit@{k}"]))
+        table.add_row("Retrieval MRR (hybrid)", num(hybrid["mrr"]))
+    if "answers" in results:
+        s = results["answers"]["summary"]
+        table.add_row("Answered when answerable", pct(s["answered_when_answerable"]))
+        table.add_row("Refused when out of scope", pct(s["refused_when_out_of_scope"]))
+        table.add_row("Cites an expected document", pct(s["citation_hit_rate"]))
+        if s["judged"]:
+            table.add_row("Grounded (judge)", pct(s["grounded_rate"]))
+            table.add_row("Correct (judge)", pct(s["correct_rate"]))
+    if "agent" in results:
+        table.add_row("Agent task completion", pct(results["agent"]["summary"]["task_completion"]))
+    console.print(table)
+
+
 def _print_preview(path: Path, chunker: Chunker) -> None:
     rows, failed = preview(path, chunker)
     table = Table(title=f"Dry run: {path}")
