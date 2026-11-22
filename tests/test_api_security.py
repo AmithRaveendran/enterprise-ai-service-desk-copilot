@@ -144,6 +144,12 @@ def test_a_valid_incoming_request_id_is_reused(client):
     assert response.headers["x-request-id"] == "gateway-123.a_b"
 
 
+def test_the_request_id_check_rejects_a_trailing_newline():
+    from servicedesk.api.middleware import _VALID_ID
+
+    assert _VALID_ID.fullmatch("abc") and not _VALID_ID.fullmatch("abc\n")
+
+
 def test_an_invalid_incoming_request_id_is_replaced(client):
     response = client.get("/openapi.json", headers={"X-Request-ID": "bad id; drop table"})
     assert response.headers["x-request-id"] != "bad id; drop table"

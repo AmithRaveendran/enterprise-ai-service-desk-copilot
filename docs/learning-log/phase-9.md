@@ -38,7 +38,7 @@
 - **Docs:** [architecture](../architecture.md) (Mermaid diagrams),
   [security](../security.md) (threats → controls → gaps), [deployment](../deployment.md)
   (compose, CI, a cloud reference layout), and [performance](../performance.md) (measured).
-- **Tests:** 404 (up from 383); 21 new tests for auth, the prod check and request IDs. Coverage 89%.
+- **Tests:** 405 (up from 383); 22 new tests for auth, the prod check and request IDs. Coverage 89%.
 - Version **1.0.0**.
 
 ## Found while verifying (each would have broken something real)
@@ -102,7 +102,7 @@ The database accounts for well under 10% of any request. Latency is model calls.
 ## Interview talking points
 - "One multi-stage Docker image, non-root, with a health check, built from the uv lock file.
   Compose runs migrations as a one-shot step before the API and MCP server start."
-- "CI lints, runs 404 tests against a real pgvector database with a coverage floor, builds
+- "CI lints, runs 405 tests against a real pgvector database with a coverage floor, builds
   the image, and boots the stack in production mode to prove it gets healthy and enforces
   auth."
 - "In prod the API refuses to start without an API key. I'd rather fail a deploy than serve an

@@ -20,8 +20,9 @@ from fastapi import Request, Response
 logger = logging.getLogger("servicedesk.api")
 
 # Only reuse IDs that look like IDs: a header is user input, and putting arbitrary text in
-# logs would let someone forge log lines (e.g. by sending a newline).
-_VALID_ID = re.compile(r"^[A-Za-z0-9._-]{1,64}$")
+# logs would let someone forge log lines (e.g. by sending a newline). fullmatch, not
+# match + `$`: in Python `$` also matches just before a final newline.
+_VALID_ID = re.compile(r"[A-Za-z0-9._-]{1,64}")
 
 # Health checks arrive every few seconds; logging them at INFO would drown everything else.
 _QUIET_PATHS = {"/health"}
@@ -31,7 +32,7 @@ async def request_context(
     request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
     incoming = request.headers.get("x-request-id", "")
-    request_id = incoming if _VALID_ID.match(incoming) else uuid4().hex
+    request_id = incoming if _VALID_ID.fullmatch(incoming) else uuid4().hex
     request.state.request_id = request_id
     start = time.perf_counter()
     try:
