@@ -1,5 +1,12 @@
-# Local infrastructure. Phase 0: just PostgreSQL with the pgvector extension.
-# The API container is added in Phase 9.
+# Local infrastructure.
+#
+#   docker compose up -d                          just Postgres + pgvector (for `uv run ...`)
+#   docker compose --profile app up -d --build    the whole stack in containers:
+#                                                 db -> migrate (runs once) -> api + mcp
+#
+# Services with `profiles: [app]` only start when the profile is asked for, so the everyday
+# development command stays "start the database". Every port is published on the loopback
+# addresses only (127.0.0.1 and ::1): reachable from this machine, not from the network.
 services:
   db:
     image: pgvector/pgvector:pg17
@@ -9,7 +16,10 @@ services:
       POSTGRES_PASSWORD: servicedesk   # local dev only — never reuse in a real deployment
       POSTGRES_DB: servicedesk
     ports:
-      - "5432:5432"
+      # Both loopbacks: "localhost" may resolve to IPv6 ::1 first (Windows does), and a
+      # connection to an unpublished ::1 port hangs until it times out.
+      - "127.0.0.1:5432:5432"
+      - "[::1]:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       # Scripts in this folder run once, on first start of an empty volume.
@@ -19,6 +29,56 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  # One-shot: bring the schema up to date, then exit. The api and mcp services wait for it
+  # to finish successfully, so they never start against an old schema.
+  migrate:
+    profiles: [app]
+    build: .
+    image: servicedesk-copilot:latest
+    command: ["alembic", "upgrade", "head"]
+    env_file: &env
+      - path: .env       # API keys and settings; optional so CI can run without one
+        required: false
+    environment: &db
+      # Inside the compose network the database is reached by its service name, not
+      # localhost. These override DATABASE_URL from .env.
+      DATABASE_URL: postgresql+psycopg://servicedesk:servicedesk@db:5432/servicedesk
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    profiles: [app]
+    image: servicedesk-copilot:latest
+    container_name: servicedesk-api
+    env_file: *env
+    environment: *db
+    ports:
+      - "127.0.0.1:8000:8000"
+      - "[::1]:8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    # The health check is built into the image (GET /health every 15 s).
+
+  mcp:
+    profiles: [app]
+    image: servicedesk-copilot:latest
+    container_name: servicedesk-mcp
+    command: ["servicedesk", "mcp", "--transport", "http", "--host", "0.0.0.0", "--port", "8001"]
+    env_file: *env
+    environment: *db
+    ports:
+      - "127.0.0.1:8001:8001"   # connect an MCP client to http://localhost:8001/mcp
+      - "[::1]:8001:8001"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    healthcheck:
+      disable: true   # the image's check calls the API's /health, which this service lacks
 
 volumes:
   pgdata:

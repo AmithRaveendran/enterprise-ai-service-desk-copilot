@@ -1,0 +1,36 @@
+# What `docker build` must NOT send to the builder: secrets, local state, and anything the
+# image doesn't need. Smaller context = faster builds; no .env = no key baked into a layer.
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local environments, caches and build output
+.venv/
+**/__pycache__/
+**/*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Version control, editors, CI
+.git/
+.github/
+.vscode/
+.idea/
+
+# Not needed at run time
+tests/
+docs/
+scripts/
+walkthrough/
+docker/
+# Root-level notes only: patterns are anchored at the build root, so data/kb/*.md is kept.
+*.md
+!README.md
+evals/report.md
+evals/results.json

@@ -1,0 +1,66 @@
+# Retrieval evaluation, run by hand (Actions tab -> "Retrieval eval" -> Run workflow).
+#
+# Not on every pull request: it calls the OpenAI embeddings API (cheap, but not free) and
+# needs the OPENAI_API_KEY repository secret. It ingests the sample knowledge base into a
+# fresh database, then scores vector, keyword and hybrid search on the 35 answerable
+# questions (hit@k, MRR) and fails if hybrid hit@5 drops below the threshold.
+name: Retrieval eval
+
+on:
+  workflow_dispatch:
+    inputs:
+      min_hit_at_5:
+        description: "Fail if hybrid hit@5 is below this (0-1)"
+        default: "0.95"
+
+permissions:
+  contents: read
+
+jobs:
+  retrieval:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: servicedesk
+          POSTGRES_PASSWORD: servicedesk
+          POSTGRES_DB: servicedesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U servicedesk -d servicedesk"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://servicedesk:servicedesk@localhost:5432/servicedesk
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.4"
+          enable-cache: true
+      - run: uv sync --frozen --no-dev
+      - run: uv run --frozen alembic upgrade head
+      - run: uv run --frozen servicedesk ingest
+      - name: Score retrieval
+        run: uv run --frozen servicedesk eval --suite retrieval
+      - name: Check the threshold
+        env:
+          MIN: ${{ inputs.min_hit_at_5 }}
+        run: |
+          uv run --frozen python - <<'EOF'
+          import json, os, sys
+          results = json.load(open("evals/results.json"))
+          hybrid = results["retrieval"]["summary"]["modes"]["hybrid"]
+          hit5, minimum = hybrid["hit@5"], float(os.environ["MIN"])
+          print(f"hybrid hit@5 = {hit5:.2f} (minimum {minimum:.2f})")
+          sys.exit(0 if hit5 >= minimum else 1)
+          EOF
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: retrieval-eval
+          path: |
+            evals/report.md
+            evals/results.json

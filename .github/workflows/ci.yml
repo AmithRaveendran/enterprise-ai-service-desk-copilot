@@ -1,0 +1,103 @@
+# Continuous integration: every push to main and every pull request is linted, tested
+# against a real Postgres + pgvector, and built into the Docker image, which is then
+# started with the database to prove it serves. No API keys are needed: the tests use
+# offline fakes for OpenAI.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch cancels the run that is still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read   # least privilege: CI only needs to read the code
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.4"
+      - name: Ruff lint
+        run: uv run --frozen ruff check .
+      - name: Ruff format
+        run: uv run --frozen ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    # A throwaway Postgres for the integration tests, same image as docker-compose.yml.
+    # The tests create their own `servicedesk_test` database on it and migrate it.
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: servicedesk
+          POSTGRES_PASSWORD: servicedesk
+          POSTGRES_DB: servicedesk
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U servicedesk -d servicedesk"
+          --health-interval 5s --health-timeout 3s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://servicedesk:servicedesk@localhost:5432/servicedesk
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.13.4"
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --frozen
+      - name: Tests with coverage
+        # CI=true (set by GitHub) makes the integration tests fail, not skip, if Postgres
+        # is unreachable. --cov-fail-under stops coverage from quietly sliding.
+        run: uv run --frozen pytest --cov --cov-report=term --cov-report=xml --cov-fail-under=85
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.xml
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true   # keep it in the local Docker for the smoke test below
+          tags: servicedesk-copilot:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke test the stack
+        # db -> migrate -> api on an empty database, in production mode (the image's
+        # default), so an API key is required: a throwaway one, valid only in this run.
+        # Then: the health check passes, and the key is enforced.
+        run: |
+          echo "API_KEY=ci-smoke-$(openssl rand -hex 16)" > .env
+          docker compose --profile app up -d --no-build db migrate api
+          for i in $(seq 1 30); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' servicedesk-api || true)
+            echo "api health: $status"
+            [ "$status" = "healthy" ] && break
+            sleep 3
+          done
+          curl --fail --silent --show-error http://127.0.0.1:8000/health
+          key=$(cut -d= -f2 .env)
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/services/status)" = 401
+          test "$(curl -s -o /dev/null -w '%{http_code}' -H "X-API-Key: $key" http://127.0.0.1:8000/services/status)" = 200
+      - name: Logs on failure
+        if: failure()
+        run: docker compose --profile app logs
