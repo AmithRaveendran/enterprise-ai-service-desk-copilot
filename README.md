@@ -18,8 +18,8 @@ LangGraph, PostgreSQL/pgvector and MCP**.
 | 5 | Stateful LangGraph workflow | ✅ |
 | 6 | Human approval for writes, error handling, workflow recovery | ✅ |
 | 7 | MCP server (tools, knowledge base resources, a prompt) | ✅ |
-| 8 | Automated tests + evaluation dataset | ⏳ |
-| 9 | Containerisation, CI, architecture/security/deployment docs | |
+| 8 | Automated tests + evaluation dataset (retrieval, grounding, task completion) | ✅ |
+| 9 | Containerisation, CI, architecture/security/deployment docs | ⏳ |
 
 ## Sample knowledge base
 
@@ -156,6 +156,29 @@ Changes take two calls: the first returns a preview and a `confirmation_token` a
 nothing; only the same call with the token writes (once, even if repeated). The server runs
 with the client's environment, so keep the OpenAI key in `.env`. See
 [docs/learning-log/phase-7.md](docs/learning-log/phase-7.md).
+
+## Evaluation
+
+`evals/dataset.jsonl` holds 52 hand-written cases: 40 knowledge-base questions (35 with the
+documents that answer them and a reference answer, 5 out of scope that must be refused) and
+12 agent tasks (which tools to call, which change to propose). One command scores the
+system against it with the real models and writes [evals/report.md](evals/report.md):
+
+```bash
+uv run servicedesk eval                    # everything (~100 model calls)
+uv run servicedesk eval --suite retrieval  # hit@k / MRR only: no chat model needed
+uv run servicedesk eval --limit 5          # quick check
+uv run pytest --cov                        # the test suite with coverage
+```
+
+- **Retrieval**: hit@1/3/5 and MRR for vector, keyword and hybrid search.
+- **Answers**: answered vs refused, citations of the right documents, and an LLM judge that
+  grades each answer's **grounding** (every claim in its cited sources) and **correctness**
+  (matches the reference answer).
+- **Agent**: task completion over the 12 tasks, run against a scratch database reset to the
+  sample data (changes are proposed, never approved).
+
+See [docs/learning-log/phase-8.md](docs/learning-log/phase-8.md).
 
 ## License
 

@@ -1,6 +1,6 @@
 [project]
 name = "servicedesk-copilot"
-version = "0.7.0"
+version = "0.8.0"
 description = "Enterprise AI Service Desk Copilot: an agentic RAG support assistant built with FastAPI, LangGraph, PostgreSQL/pgvector and MCP."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -37,6 +37,7 @@ dev = [
     "ruff>=0.8",
     "pre-commit>=4.0",
     "fpdf2>=2.8",   # only used by scripts/build_pdfs.py to generate sample PDF docs
+    "pytest-cov>=6.0",
 ]
 
 [build-system]
@@ -64,3 +65,12 @@ addopts = "-ra"
 markers = [
     "integration: needs the Docker Postgres database (skipped automatically if it is not running)",
 ]
+
+[tool.coverage.run]
+# `uv run pytest --cov` measures the app package; branch = also count untaken if/else paths.
+source = ["servicedesk"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

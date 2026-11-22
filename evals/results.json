@@ -1,0 +1,2552 @@
+{
+  "retrieval": {
+    "summary": {
+      "k": 5,
+      "questions": 35,
+      "modes": {
+        "vector": {
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "mrr": 1.0,
+          "misses": []
+        },
+        "keyword": {
+          "hit@1": 0.8285714285714286,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "mrr": 0.9095238095238095,
+          "misses": []
+        },
+        "hybrid": {
+          "hit@1": 0.9714285714285714,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "mrr": 0.9857142857142858,
+          "misses": []
+        }
+      }
+    },
+    "cases": [
+      {
+        "id": "q01",
+        "question": "I forgot my password. How do I reset it?",
+        "expected": [
+          "KB-0002"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002"
+          ]
+        }
+      },
+      {
+        "id": "q02",
+        "question": "How long does my new password have to be?",
+        "expected": [
+          "KB-0002"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0002",
+            "KB-0002",
+            "KB-0003",
+            "KB-0002",
+            "KB-0002"
+          ]
+        },
+        "keyword": {
+          "rank": 2,
+          "docs": [
+            "KB-0009",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0009",
+            "KB-0002"
+          ]
+        }
+      },
+      {
+        "id": "q03",
+        "question": "My account got locked after I typed the wrong password a few times. What should I do?",
+        "expected": [
+          "KB-0002"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0002",
+            "KB-0002",
+            "POL-0003",
+            "KB-0002",
+            "KB-0002"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002",
+            "KB-0002"
+          ]
+        }
+      },
+      {
+        "id": "q04",
+        "question": "Can I use SMS text messages as my MFA method?",
+        "expected": [
+          "KB-0003"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0003",
+            "KB-0003",
+            "KB-0003",
+            "KB-0003",
+            "KB-0003"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0003",
+            "KB-0003",
+            "KB-0003",
+            "POL-0001",
+            "KB-0003"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0003",
+            "KB-0003",
+            "KB-0003",
+            "KB-0003",
+            "KB-0003"
+          ]
+        }
+      },
+      {
+        "id": "q05",
+        "question": "I lost the phone that has my Authenticator app. How can I sign in?",
+        "expected": [
+          "KB-0003"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0003",
+            "KB-0003",
+            "KB-0002",
+            "KB-0003",
+            "KB-0003"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0003",
+            "KB-0003",
+            "KB-0005",
+            "KB-0002",
+            "KB-0004"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0003",
+            "KB-0003",
+            "KB-0002",
+            "KB-0003",
+            "KB-0003"
+          ]
+        }
+      },
+      {
+        "id": "q06",
+        "question": "How do I connect to the VPN on my Windows laptop?",
+        "expected": [
+          "KB-0001"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0001",
+            "KB-0001",
+            "KB-0007",
+            "KB-0001",
+            "KB-0001"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0001",
+            "KB-0007",
+            "KB-0001",
+            "KB-0001",
+            "KB-0001"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0001",
+            "KB-0007",
+            "KB-0001",
+            "KB-0001",
+            "KB-0001"
+          ]
+        }
+      },
+      {
+        "id": "q07",
+        "question": "SecureLink says 'gateway unreachable' when I'm in a hotel. What can I do?",
+        "expected": [
+          "KB-0001"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0001",
+            "KB-0001",
+            "KB-0001",
+            "KB-0001",
+            "KB-0001"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0001",
+            "KB-0001",
+            "KB-0001",
+            "KB-0001",
+            "KI-0007"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0001",
+            "KB-0001",
+            "KB-0001",
+            "KB-0001",
+            "KI-0007"
+          ]
+        }
+      },
+      {
+        "id": "q08",
+        "question": "My VPN keeps disconnecting every few minutes on my MacBook. Is there a fix?",
+        "expected": [
+          "KI-0007",
+          "KB-0001"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KI-0007",
+            "KI-0007",
+            "KI-0007",
+            "KI-0007",
+            "KI-0007"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KI-0007",
+            "KI-0007",
+            "KI-0007",
+            "KI-0007",
+            "KI-0007"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KI-0007",
+            "KI-0007",
+            "KI-0007",
+            "KI-0007",
+            "KI-0007"
+          ]
+        }
+      },
+      {
+        "id": "q09",
+        "question": "Can I connect my personal laptop to the company VPN?",
+        "expected": [
+          "KB-0001",
+          "POL-0001"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0001",
+            "KB-0007",
+            "POL-0001",
+            "KB-0001",
+            "KB-0001"
+          ]
+        },
+        "keyword": {
+          "rank": 2,
+          "docs": [
+            "KB-0007",
+            "KB-0001",
+            "KB-0001",
+            "KB-0001",
+            "KB-0001"
+          ]
+        },
+        "hybrid": {
+          "rank": 2,
+          "docs": [
+            "KB-0007",
+            "KB-0001",
+            "KB-0001",
+            "KB-0001",
+            "POL-0001"
+          ]
+        }
+      },
+      {
+        "id": "q10",
+        "question": "Nobody can hear me in Teams calls when my ThinkPad is on the docking station.",
+        "expected": [
+          "KI-0012"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KI-0012",
+            "KI-0012",
+            "KI-0012",
+            "KI-0012",
+            "KI-0012"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KI-0012",
+            "KI-0012",
+            "KI-0012",
+            "KI-0012",
+            "KI-0012"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KI-0012",
+            "KI-0012",
+            "KI-0012",
+            "KI-0012",
+            "KI-0012"
+          ]
+        }
+      },
+      {
+        "id": "q11",
+        "question": "Outlook is stuck on 'Loading Profile'. How do I fix it?",
+        "expected": [
+          "KB-0005"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005"
+          ]
+        }
+      },
+      {
+        "id": "q12",
+        "question": "What is the maximum size of an email I can send?",
+        "expected": [
+          "KB-0005"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "POL-0001",
+            "KB-0005",
+            "KB-0005"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "POL-0001",
+            "KB-0005",
+            "KB-0005"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "POL-0001",
+            "KB-0005",
+            "KB-0005"
+          ]
+        }
+      },
+      {
+        "id": "q13",
+        "question": "How big is my mailbox, and what happens when it fills up?",
+        "expected": [
+          "KB-0005"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0010",
+            "KB-0010"
+          ]
+        },
+        "keyword": {
+          "rank": 2,
+          "docs": [
+            "KB-0009",
+            "KB-0005",
+            "KB-0005",
+            "KB-0010",
+            "KB-0010"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0009",
+            "KB-0010",
+            "KB-0005",
+            "KB-0010"
+          ]
+        }
+      },
+      {
+        "id": "q14",
+        "question": "Can I read my work email in the iPhone Mail app?",
+        "expected": [
+          "KB-0005",
+          "POL-0001"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0007"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0002",
+            "POL-0006"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005"
+          ]
+        }
+      },
+      {
+        "id": "q15",
+        "question": "How do I add the office printer on my Mac?",
+        "expected": [
+          "KB-0006"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006"
+          ]
+        }
+      },
+      {
+        "id": "q16",
+        "question": "How many colour pages am I allowed to print per month?",
+        "expected": [
+          "KB-0006"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006",
+            "KB-0006"
+          ]
+        }
+      },
+      {
+        "id": "q17",
+        "question": "How do I get a new laptop, and how long does delivery take?",
+        "expected": [
+          "KB-0004",
+          "POL-0003"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004"
+          ]
+        }
+      },
+      {
+        "id": "q18",
+        "question": "How often do laptops get replaced?",
+        "expected": [
+          "KB-0004"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0004"
+          ]
+        }
+      },
+      {
+        "id": "q19",
+        "question": "My work laptop was stolen from my car. What do I need to do?",
+        "expected": [
+          "KB-0004",
+          "POL-0006",
+          "POL-0005"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "POL-0006",
+            "KB-0004"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0004",
+            "POL-0006",
+            "KB-0007",
+            "KB-0004",
+            "KB-0001"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0004",
+            "KB-0004",
+            "KB-0004",
+            "KB-0007",
+            "POL-0006"
+          ]
+        }
+      },
+      {
+        "id": "q20",
+        "question": "How do I install Zoom on my work laptop?",
+        "expected": [
+          "KB-0008",
+          "POL-0004"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0008",
+            "KB-0008",
+            "KB-0001",
+            "POL-0006",
+            "KB-0001"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0008",
+            "POL-0006",
+            "KB-0008",
+            "KB-0004",
+            "KB-0004"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0008",
+            "KB-0008",
+            "KB-0001",
+            "POL-0006",
+            "POL-0006"
+          ]
+        }
+      },
+      {
+        "id": "q21",
+        "question": "How do I request software that isn't in the Company Portal, and how long does approval take?",
+        "expected": [
+          "KB-0008",
+          "POL-0004",
+          "POL-0003"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0008",
+            "POL-0004",
+            "KB-0008",
+            "KB-0008",
+            "KB-0008"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0008",
+            "POL-0004",
+            "KB-0008",
+            "KB-0008",
+            "KB-0008"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0008",
+            "POL-0004",
+            "KB-0008",
+            "KB-0008",
+            "KB-0008"
+          ]
+        }
+      },
+      {
+        "id": "q22",
+        "question": "Can I get admin rights on my laptop?",
+        "expected": [
+          "KB-0008",
+          "POL-0004"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "POL-0004",
+            "KB-0008",
+            "KB-0008",
+            "KB-0004",
+            "KB-0004"
+          ]
+        },
+        "keyword": {
+          "rank": 2,
+          "docs": [
+            "KB-0004",
+            "KB-0008",
+            "KB-0004",
+            "KB-0004",
+            "KB-0007"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0008",
+            "KB-0004",
+            "KB-0004",
+            "POL-0004",
+            "KB-0004"
+          ]
+        }
+      },
+      {
+        "id": "q23",
+        "question": "Which Wi-Fi network should I use for my personal phone in the office?",
+        "expected": [
+          "KB-0007",
+          "POL-0001"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007"
+          ]
+        }
+      },
+      {
+        "id": "q24",
+        "question": "My company laptop won't connect to the office Wi-Fi.",
+        "expected": [
+          "KB-0007"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007",
+            "KB-0007"
+          ]
+        }
+      },
+      {
+        "id": "q25",
+        "question": "How do I get access to the Finance shared drive?",
+        "expected": [
+          "KB-0011"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0011",
+            "KB-0011",
+            "KB-0011",
+            "KB-0011",
+            "KB-0011"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0011",
+            "KB-0011",
+            "KB-0011",
+            "KB-0011",
+            "KB-0011"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0011",
+            "KB-0011",
+            "KB-0011",
+            "KB-0011",
+            "KB-0011"
+          ]
+        }
+      },
+      {
+        "id": "q26",
+        "question": "I'm starting next week. What do I need to do in my first week for IT?",
+        "expected": [
+          "KB-0009"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0009",
+            "KB-0009",
+            "KB-0009",
+            "KB-0009",
+            "KB-0009"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0009",
+            "KB-0001",
+            "KB-0009",
+            "KB-0009",
+            "KB-0009"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0009",
+            "KB-0009",
+            "KB-0009",
+            "KB-0009",
+            "KB-0010"
+          ]
+        }
+      },
+      {
+        "id": "q27",
+        "question": "When is a leaver's account switched off?",
+        "expected": [
+          "KB-0010",
+          "POL-0005"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "KB-0010",
+            "KB-0010",
+            "KB-0010",
+            "KB-0010",
+            "KB-0010"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "KB-0010",
+            "KB-0010",
+            "KB-0010",
+            "KB-0010",
+            "KB-0002"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "KB-0010",
+            "KB-0010",
+            "KB-0010",
+            "KB-0010",
+            "KB-0010"
+          ]
+        }
+      },
+      {
+        "id": "q28",
+        "question": "What are the response and resolution targets for a P2 incident?",
+        "expected": [
+          "POL-0002"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "POL-0002",
+            "POL-0002",
+            "POL-0002",
+            "POL-0002",
+            "POL-0002"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "POL-0002",
+            "POL-0002",
+            "POL-0002",
+            "POL-0002",
+            "POL-0002"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "POL-0002",
+            "POL-0002",
+            "POL-0002",
+            "POL-0002",
+            "POL-0002"
+          ]
+        }
+      },
+      {
+        "id": "q29",
+        "question": "How should I report a P1 incident?",
+        "expected": [
+          "POL-0002"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "POL-0002",
+            "POL-0005",
+            "POL-0002",
+            "POL-0001",
+            "POL-0002"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "POL-0002",
+            "POL-0005",
+            "POL-0002",
+            "POL-0002",
+            "POL-0002"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "POL-0002",
+            "POL-0005",
+            "POL-0002",
+            "POL-0002",
+            "POL-0002"
+          ]
+        }
+      },
+      {
+        "id": "q30",
+        "question": "Am I allowed to paste customer data into ChatGPT to summarise it?",
+        "expected": [
+          "POL-0001"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "POL-0001",
+            "POL-0001",
+            "KB-0010",
+            "POL-0001",
+            "POL-0001"
+          ]
+        },
+        "keyword": {
+          "rank": 3,
+          "docs": [
+            "POL-0005",
+            "POL-0005",
+            "POL-0001",
+            "POL-0005",
+            "POL-0005"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "POL-0001",
+            "KB-0010",
+            "POL-0001",
+            "POL-0005",
+            "POL-0005"
+          ]
+        }
+      },
+      {
+        "id": "q31",
+        "question": "What are the data classification levels?",
+        "expected": [
+          "POL-0005"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "POL-0005",
+            "POL-0005",
+            "POL-0005",
+            "POL-0005",
+            "POL-0005"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "POL-0005",
+            "POL-0005",
+            "POL-0005",
+            "POL-0005",
+            "POL-0005"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "POL-0005",
+            "POL-0005",
+            "POL-0005",
+            "POL-0005",
+            "POL-0005"
+          ]
+        }
+      },
+      {
+        "id": "q32",
+        "question": "Can I email a Restricted document to a partner company?",
+        "expected": [
+          "POL-0005"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "POL-0005",
+            "POL-0001",
+            "KB-0011",
+            "KB-0011",
+            "POL-0001"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "POL-0005",
+            "POL-0001",
+            "KB-0005",
+            "KB-0005",
+            "KB-0005"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "POL-0005",
+            "POL-0001",
+            "POL-0001",
+            "KB-0011",
+            "KB-0008"
+          ]
+        }
+      },
+      {
+        "id": "q33",
+        "question": "Can I get a second monitor for working from home?",
+        "expected": [
+          "POL-0006"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "POL-0006",
+            "POL-0006",
+            "POL-0006",
+            "POL-0006",
+            "POL-0006"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "POL-0006",
+            "POL-0006",
+            "POL-0006",
+            "POL-0006",
+            "POL-0006"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "POL-0006",
+            "POL-0006",
+            "POL-0006",
+            "POL-0006",
+            "POL-0006"
+          ]
+        }
+      },
+      {
+        "id": "q34",
+        "question": "Does the company pay for my home broadband?",
+        "expected": [
+          "POL-0006"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "POL-0006",
+            "KB-0007",
+            "POL-0006",
+            "POL-0006",
+            "POL-0006"
+          ]
+        },
+        "keyword": {
+          "rank": 1,
+          "docs": [
+            "POL-0006",
+            "KB-0008",
+            "POL-0006",
+            "KB-0008",
+            "KB-0008"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "POL-0006",
+            "POL-0006",
+            "KB-0007",
+            "POL-0006",
+            "KB-0008"
+          ]
+        }
+      },
+      {
+        "id": "q35",
+        "question": "When is the walk-up IT desk open?",
+        "expected": [
+          "POL-0003"
+        ],
+        "vector": {
+          "rank": 1,
+          "docs": [
+            "POL-0003",
+            "KB-0009",
+            "KB-0009",
+            "POL-0003",
+            "KB-0009"
+          ]
+        },
+        "keyword": {
+          "rank": 2,
+          "docs": [
+            "KB-0002",
+            "POL-0003",
+            "KB-0005",
+            "KB-0004",
+            "KB-0001"
+          ]
+        },
+        "hybrid": {
+          "rank": 1,
+          "docs": [
+            "POL-0003",
+            "KB-0002",
+            "KB-0004",
+            "KB-0009",
+            "KB-0009"
+          ]
+        }
+      }
+    ]
+  },
+  "answers": {
+    "summary": {
+      "questions": 40,
+      "errors": [],
+      "answered_when_answerable": 1.0,
+      "refused_when_out_of_scope": 1.0,
+      "false_refusals": [],
+      "false_answers": [],
+      "refusal_reasons": {
+        "no_relevant_sources": 4,
+        "not_in_sources": 1
+      },
+      "citation_hit_rate": 1.0,
+      "citation_precision": 0.9714285714285714,
+      "judged": 35,
+      "grounding": {
+        "supported": 34,
+        "partially_supported": 1
+      },
+      "correctness": {
+        "correct": 31,
+        "partially_correct": 4
+      },
+      "grounded_rate": 0.9714285714285714,
+      "correct_rate": 0.8857142857142857,
+      "not_fully_grounded": [
+        "q06"
+      ],
+      "not_correct": [
+        "q18",
+        "q19",
+        "q22",
+        "q28"
+      ],
+      "latency_s_mean": 3.7935000000000003,
+      "latency_s_p95": 5.67,
+      "answer_tokens": 42897,
+      "judge_tokens": 37356
+    },
+    "cases": [
+      {
+        "id": "q01",
+        "question": "I forgot my password. How do I reset it?",
+        "answerable": true,
+        "latency_s": 4.31,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Use the self\u2011service reset first: go to https://id.halcyon-dynamics.example/reset and enter your work email, verify with your registered MFA method (Authenticator app or FIDO2 key), choose a new password that meets the requirements, and then sign out and back in on all devices to avoid lockouts [1][2][1]. Self\u2011service reset requires that you have already enrolled in MFA; if you have never set up MFA, contact the Service Desk instead [1]. If you cannot use self\u2011service, call the Service Desk on extension 4357 or visit the walk\u2011up IT desk; the analyst will verify your identity using your employee ID and a callback to the phone number in the HR system and will provide a temporary password that must be changed at first sign\u2011in [3].",
+        "cited_docs": [
+          "KB-0002",
+          "KB-0002",
+          "KB-0002"
+        ],
+        "top_similarity": 0.5341761540346996,
+        "tokens": 1240,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer's steps and contact details match the provided KB sources and the reference; all factual claims are present in the cited sources and it includes the key points from the reference."
+        },
+        "judge_tokens": 1371
+      },
+      {
+        "id": "q02",
+        "question": "How long does my new password have to be?",
+        "answerable": true,
+        "latency_s": 2.91,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Your new password must be at least 14 characters long [1][2].",
+        "cited_docs": [
+          "KB-0002",
+          "KB-0009"
+        ],
+        "top_similarity": 0.5589928875457204,
+        "tokens": 1087,
+        "citation_hit": true,
+        "citation_precision": 0.5,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer matches the sources which state the minimum length is 14 characters, and it matches the reference key fact."
+        },
+        "judge_tokens": 844
+      },
+      {
+        "id": "q03",
+        "question": "My account got locked after I typed the wrong password a few times. What should I do?",
+        "answerable": true,
+        "latency_s": 4.71,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Wait 15 minutes \u2014 accounts are locked for 15 minutes after 5 failed sign\u2011in attempts and the lock clears automatically, so you do not need to raise a ticket [1]. After the lock clears, sign in with the correct password and sign out and back in on all devices (including your phone email app) to avoid further lockouts [2][1]. Check for old saved credentials (for example on phones or mapped drives) and update or remove them after every password change, since those commonly cause repeated lockouts [1]. If you believe your password was exposed or you entered it on a suspicious site, reset it immediately using self\u2011service and then report it as a security incident via Security > Report a Phishing or Compromise in the portal [3][2].",
+        "cited_docs": [
+          "KB-0002",
+          "KB-0002",
+          "KB-0002"
+        ],
+        "top_similarity": 0.5141693882626209,
+        "tokens": 1334,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "All factual claims are present in the provided sources, and the answer includes the reference's key facts (15-minute automatic unlock, no ticket needed, and update saved credentials) without contradiction."
+        },
+        "judge_tokens": 1368
+      },
+      {
+        "id": "q04",
+        "question": "Can I use SMS text messages as my MFA method?",
+        "answerable": true,
+        "latency_s": 3.69,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "No \u2014 SMS text messages are not permitted as an MFA method; SMS is listed as Not permitted due to vulnerability to SIM\u2011swap attacks [1]. Use an approved method instead, for example Microsoft Authenticator (push + number matching), a FIDO2 hardware security key, or the 6\u2011digit authenticator code (TOTP) as a fallback [1].",
+        "cited_docs": [
+          "KB-0003"
+        ],
+        "top_similarity": 0.6329961551007212,
+        "tokens": 1210,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer's statements match the provided source and the reference: SMS is not permitted (SIM\u2011swap risk) and approved alternatives are Microsoft Authenticator push, FIDO2 hardware keys, and the 6\u2011digit authenticator code."
+        },
+        "judge_tokens": 942
+      },
+      {
+        "id": "q05",
+        "question": "I lost the phone that has my Authenticator app. How can I sign in?",
+        "answerable": true,
+        "latency_s": 5.53,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Call the Service Desk on extension 4357; after identity verification the analyst can issue a Temporary Access Pass (valid for 8 hours) so you can register a new MFA method [1]. Use the portal (https://id.halcyon-dynamics.example/security) to add your Authenticator app again: Add sign-in method > Authenticator app, then scan the QR code in the Microsoft Authenticator app and complete the approval/number-matching step [2][1]. Alternatively, you can request a FIDO2 security key from the Service Desk and register it via Add sign-in method > Security key (insert/tap key, create PIN, name the key) [3][1]. We recommend registering a second method so you won\u2019t be locked out in future [3]; do not use SMS or voice call methods (not permitted) [4].",
+        "cited_docs": [
+          "KB-0003",
+          "KB-0003",
+          "KB-0003",
+          "KB-0003"
+        ],
+        "top_similarity": 0.5323268318112565,
+        "tokens": 1518,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer's instructions (call Service Desk for an 8\u2011hour Temporary Access Pass, re-register Microsoft Authenticator via the security portal, optionally request/register a FIDO2 key, and avoid SMS/voice) are all stated in the provided sources and match the reference guidance."
+        },
+        "judge_tokens": 1419
+      },
+      {
+        "id": "q06",
+        "question": "How do I connect to the VPN on my Windows laptop?",
+        "answerable": true,
+        "latency_s": 6.1,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "1. Ensure you have an active Halcyon ID with MFA enrolled and a working internet connection; company-managed laptops already have SecureLink installed and personal devices aren\u2019t permitted to connect [1].\n2. Click the SecureLink shield icon in the system tray; if it\u2019s missing, open Start > SecureLink [2].\n3. Confirm the gateway is set to vpn.halcyon-dynamics.example [2].\n4. Click Connect and sign in with your Halcyon ID email and password [2].\n5. Approve the push notification in Microsoft Authenticator or tap your FIDO2 security key (or use the 6-digit code if push doesn\u2019t arrive) [2][1].\n6. The SecureLink shield icon turns green and the status shows Connected \u2013 Full Tunnel when connected [2].\n7. If you cannot reach the gateway, accept any Wi\u2011Fi captive portal in a browser or try the fallback gateway vpn-tcp.halcyon-dynamics.example; if the device isn\u2019t enrolled you may see a \u201cCertificate not trusted\u201d error and must contact the Service Desk [1].",
+        "cited_docs": [
+          "KB-0001",
+          "KB-0001"
+        ],
+        "top_similarity": 0.6029801248907659,
+        "tokens": 1419,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "partially_supported",
+          "unsupported_claims": [
+            "You can use the 6-digit MFA code if the push doesn\u2019t arrive (not stated in the sources).",
+            "Try the fallback gateway vpn-tcp.halcyon-dynamics.example if you cannot reach the gateway (not stated in the sources).",
+            "If the device isn\u2019t enrolled you may see a \u201cCertificate not trusted\u201d error and must contact the Service Desk (the exact certificate error and contact instruction are not stated in the sources)."
+          ],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer\u2019s core connection steps match the sources, but it adds a few specifics (6-digit code fallback, a named fallback gateway, and a certificate-error/contact instruction) that are not present in the provided sources. Compared to the reference, the answer contains the required key steps and thus is correct."
+        },
+        "judge_tokens": 1671
+      },
+      {
+        "id": "q07",
+        "question": "SecureLink says 'gateway unreachable' when I'm in a hotel. What can I do?",
+        "answerable": true,
+        "latency_s": 4.77,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "If SecureLink reports \u201cGateway unreachable\u201d from a hotel, the VPN is often blocked by the Wi\u2011Fi captive portal or a firewall; open a browser and accept the hotel\u2019s Wi\u2011Fi portal to allow the VPN through [1][2]. If that doesn\u2019t work, switch SecureLink to use the TCP fallback gateway `vpn-tcp.halcyon-dynamics.example` (this avoids UDP 4501 being blocked) [1].",
+        "cited_docs": [
+          "KB-0001",
+          "KB-0001"
+        ],
+        "top_similarity": 0.5756998943649441,
+        "tokens": 1294,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer's claims (captive portal/firewall blocking, accept portal in browser, use the TCP fallback gateway to avoid UDP 4501 being blocked) are all stated in the provided sources and match the reference."
+        },
+        "judge_tokens": 1084
+      },
+      {
+        "id": "q08",
+        "question": "My VPN keeps disconnecting every few minutes on my MacBook. Is there a fix?",
+        "answerable": true,
+        "latency_s": 5.56,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "This is a known issue on macOS 15 and a vendor fix is expected in SecureLink 6.4; status: Open with a workaround available [1]. The problem is caused by a macOS 15 power-management change that sleeps the network extension on battery when the screen is locked, interrupting VPN keepalive, and symptoms include drops after 3\u201310 minutes with a \u2018tunnel keepalive timeout\u2019 in the SecureLink log [2][3]. Workaround (follow these steps): 1) Open System Settings > Battery > Options and turn on \u201cPrevent automatic sleeping on power adapter when the display is off\u201d [4]. 2) Turn off \u201cEnable Power Nap\u201d [4]. 3) In SecureLink, go to Settings > Connection and change the protocol from Auto to TCP (uses vpn-tcp.halcyon-dynamics.example) [4]. 4) Disconnect and reconnect the VPN; most users report the TCP setting alone stops the disconnects [4]. If the drops continue after the workaround, raise a ticket under Network > VPN, mention KI-0007, and attach the SecureLink log (Help > Export Logs); tickets for this known issue are handled as P3 [5].",
+        "cited_docs": [
+          "KI-0007",
+          "KI-0007",
+          "KI-0007",
+          "KI-0007",
+          "KI-0007"
+        ],
+        "top_similarity": 0.6506304186135394,
+        "tokens": 1364,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer accurately restates the sources: it describes the macOS 15 power-management cause, symptoms, the Open status and expected vendor fix in SecureLink 6.4, lists the battery and SecureLink TCP workaround steps, and the ticketing guidance; all claims are present in the provided sources and match the reference."
+        },
+        "judge_tokens": 1594
+      },
+      {
+        "id": "q09",
+        "question": "Can I connect my personal laptop to the company VPN?",
+        "answerable": true,
+        "latency_s": 3.69,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "No \u2014 personal laptops are not permitted to connect to the company VPN; only company-managed devices may connect to the VPN, Halcyon-Corp Wi\u2011Fi, or internal systems [1][2]. Personal phones and tablets may only access email and Teams through the Outlook and Teams mobile apps after registering on Halcyon-BYOD, per the Acceptable Use Policy [2].",
+        "cited_docs": [
+          "KB-0001",
+          "POL-0001"
+        ],
+        "top_similarity": 0.6164568013726289,
+        "tokens": 1242,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer accurately states that personal laptops cannot use the company VPN and correctly adds policy details about Wi\u2011Fi/internal systems and mobile app access; all claims are present in the provided sources and align with the reference."
+        },
+        "judge_tokens": 1084
+      },
+      {
+        "id": "q10",
+        "question": "Nobody can hear me in Teams calls when my ThinkPad is on the docking station.",
+        "answerable": true,
+        "latency_s": 4.57,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "This is a known issue where other participants can\u2019t hear you when a ThinkPad is connected to a Lenovo USB\u2011C Dock Gen 2; audio works when undocked and the problem began after the September Windows update [1]. After the update Windows can select the dock\u2019s audio as the default device and Teams follows Windows\u2019 default, causing the issue [2]. Workaround: in the Teams call click More (\u2026) > Settings > Device settings and explicitly select your headset under Speaker and Microphone instead of \u201cDefault device\u201d [3]. To make it permanent, open Windows Settings > System > Sound and set your headset as the default input and output device [3]. If the headset is not listed, unplug the dock, wait 10 seconds, and plug it back in [3]. A firmware update for the docking stations is being tested and will be deployed automatically, and the issue is currently open with a workaround available [4]. If the workaround does not resolve the problem, raise a ticket under Collaboration > Teams Issue and mention KI\u20110012 and the dock serial number from the underside of the dock [5].",
+        "cited_docs": [
+          "KI-0012",
+          "KI-0012",
+          "KI-0012",
+          "KI-0012",
+          "KI-0012"
+        ],
+        "top_similarity": 0.7139012643767582,
+        "tokens": 1145,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer restates the issue, cause, workaround steps, firmware status, and ticket instructions exactly as given in the provided sources and matches the reference's key facts."
+        },
+        "judge_tokens": 1354
+      },
+      {
+        "id": "q11",
+        "question": "Outlook is stuck on 'Loading Profile'. How do I fix it?",
+        "answerable": true,
+        "latency_s": 2.77,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "1. Close Outlook completely, including from the system tray [1].\n2. Start Outlook in safe mode: press Windows + R, type outlook.exe /safe, and press Enter [1].\n3. If Outlook opens in safe mode, disable recently added COM add-ins via File > Options > Add-ins (remove the faulty add-in) [1].\n4. If safe mode also fails, create a new mail profile: Control Panel > Mail > Show Profiles > Add, then set the new profile as the default [1].",
+        "cited_docs": [
+          "KB-0005"
+        ],
+        "top_similarity": 0.7808196403399054,
+        "tokens": 1071,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer restates the steps from the reference and exactly matches the provided source KB-0005, covering safe mode, disabling COM add-ins, and creating a new mail profile as needed."
+        },
+        "judge_tokens": 899
+      },
+      {
+        "id": "q12",
+        "question": "What is the maximum size of an email I can send?",
+        "answerable": true,
+        "latency_s": 2.68,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Messages larger than 35 MB including attachments are rejected, so the maximum size you can send is 35 MB [1].",
+        "cited_docs": [
+          "KB-0005"
+        ],
+        "top_similarity": 0.5186089915224193,
+        "tokens": 981,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer matches the source and the reference: both state a 35 MB limit and that larger messages are rejected (with OneDrive suggested for large files)."
+        },
+        "judge_tokens": 758
+      },
+      {
+        "id": "q13",
+        "question": "How big is my mailbox, and what happens when it fills up?",
+        "answerable": true,
+        "latency_s": 3.98,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Standard mailboxes have a 100 GB quota and an online archive is available to every user with an additional 100 GB [1]. When the mailbox reaches 98% full you can no longer send email; to free space empty Deleted Items and Junk Email, search for large items (search box: size:>10MB), or enable/use the online archive [1].",
+        "cited_docs": [
+          "KB-0005"
+        ],
+        "top_similarity": 0.5179310276745797,
+        "tokens": 1191,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer matches the source and includes the same key facts as the reference: 100 GB mailbox, 98% send restriction, ways to free space, and 100 GB online archive."
+        },
+        "judge_tokens": 904
+      },
+      {
+        "id": "q14",
+        "question": "Can I read my work email in the iPhone Mail app?",
+        "answerable": true,
+        "latency_s": 2.87,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "No \u2014 only the Outlook mobile app is supported on phones; native mail apps (iOS Mail, Gmail) are blocked by policy [1].",
+        "cited_docs": [
+          "KB-0005"
+        ],
+        "top_similarity": 0.4584891875741408,
+        "tokens": 1094,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer matches the source and the reference exactly: only Outlook mobile is supported and native mail apps are blocked by policy."
+        },
+        "judge_tokens": 750
+      },
+      {
+        "id": "q15",
+        "question": "How do I add the office printer on my Mac?",
+        "answerable": true,
+        "latency_s": 4.9,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Make sure you are connected to the office network (Halcyon\u2011Corp Wi\u2011Fi or wired) or to the VPN [1]. Open System Settings > Printers & Scanners > Add Printer [2]. Select the IP tab and enter print01.halcyon-dynamics.example, set Protocol to LPD, Queue to HD-FollowMe, and use Generic PostScript as the driver [2].",
+        "cited_docs": [
+          "KB-0006",
+          "KB-0006"
+        ],
+        "top_similarity": 0.7203397826775852,
+        "tokens": 1173,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "All factual claims in the answer match the provided sources, and the answer includes the key steps and settings from the reference (address, protocol, queue, driver)."
+        },
+        "judge_tokens": 978
+      },
+      {
+        "id": "q16",
+        "question": "How many colour pages am I allowed to print per month?",
+        "answerable": true,
+        "latency_s": 2.56,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "You are allowed to print 200 colour pages per month per person unless your manager approves more [1].",
+        "cited_docs": [
+          "KB-0006"
+        ],
+        "top_similarity": 0.6274440647037439,
+        "tokens": 949,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer matches the source exactly and agrees with the reference: 200 colour pages per month per person, unless manager approval increases it."
+        },
+        "judge_tokens": 728
+      },
+      {
+        "id": "q17",
+        "question": "How do I get a new laptop, and how long does delivery take?",
+        "answerable": true,
+        "latency_s": 3.61,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Open the Service Desk portal at https://help.halcyon-dynamics.example and choose Hardware > Laptop Request to submit a laptop request [1]. Select the profile you need and (for Power and Mac profiles) provide a business justification, then submit\u2014the request is routed to your manager for approval [1]. After manager approval, standard models are delivered within 5 business days [1][2]. If you request non\u2011standard hardware it requires approval from both your manager and the End User Computing lead and can take up to 20 business days for delivery [2].",
+        "cited_docs": [
+          "KB-0004",
+          "KB-0004"
+        ],
+        "top_similarity": 0.6083315257540359,
+        "tokens": 1090,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer's steps and delivery times directly match the provided sources (including non-standard approval and 20 business day delivery), and it aligns with the reference's key points."
+        },
+        "judge_tokens": 1067
+      },
+      {
+        "id": "q18",
+        "question": "How often do laptops get replaced?",
+        "answerable": true,
+        "latency_s": 3.52,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Laptops are replaced every 4 years [1].",
+        "cited_docs": [
+          "KB-0004"
+        ],
+        "top_similarity": 0.6649053771004351,
+        "tokens": 894,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "partially_correct",
+          "missing_points": [
+            "You are contacted automatically about 30 days before the refresh date and do not need to raise a request for a scheduled refresh."
+          ],
+          "explanation": "The answer correctly states the 4-year replacement cycle (supported by the source) but omits the additional details about automatic contact ~30 days before refresh and that no user request is required."
+        },
+        "judge_tokens": 733
+      },
+      {
+        "id": "q19",
+        "question": "My work laptop was stolen from my car. What do I need to do?",
+        "answerable": true,
+        "latency_s": 3.27,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Report the theft immediately by phone on extension 4357 so IT can remotely lock and wipe the device [1]. After calling, file a report in the Service Desk portal under Security > Lost or Stolen Device [1]. Lost devices are treated as a security incident [1].",
+        "cited_docs": [
+          "KB-0004"
+        ],
+        "top_similarity": 0.5712410521567924,
+        "tokens": 1097,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "partially_correct",
+          "missing_points": [
+            "The theft must also be reported to the police and the crime reference number added to the ticket."
+          ],
+          "explanation": "All actions stated in the answer (call extension 4357 for remote lock/wipe, then file a portal report; lost devices treated as security incidents) are present in the provided source. The reference additionally requires reporting the theft to police and adding the crime reference number, which the answer omitted."
+        },
+        "judge_tokens": 883
+      },
+      {
+        "id": "q20",
+        "question": "How do I install Zoom on my work laptop?",
+        "answerable": true,
+        "latency_s": 4.2,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "1. Open Company Portal from the Start menu (Windows) or Applications (macOS). [1]\n2. Browse or search the catalogue for \u201cZoom\u201d. [1]\n3. Click Install; installation usually finishes within 15 minutes. [1]\n4. You do not need local administrator rights\u2014approved software is installed through Company Portal without admin rights. [2]",
+        "cited_docs": [
+          "KB-0008",
+          "KB-0008"
+        ],
+        "top_similarity": 0.459991510723442,
+        "tokens": 1093,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer's steps and statements directly match the provided sources and include all key facts from the reference (open Company Portal, search for Zoom, click Install, no admin rights needed, installation time)."
+        },
+        "judge_tokens": 836
+      },
+      {
+        "id": "q21",
+        "question": "How do I request software that isn't in the Company Portal, and how long does approval take?",
+        "answerable": true,
+        "latency_s": 4.52,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "1) Raise a request in the Service Desk portal under Software > New Software Request and include the software name, vendor, version, business justification and whether it needs a paid licence (and for paid software include a cost centre and manager approval). [1][2][1]\n2) Also include the expected number of users as required by the approval form. [2]\nThe Security team reviews the request and assessments take up to 10 business days. [1][2]",
+        "cited_docs": [
+          "KB-0008",
+          "POL-0004"
+        ],
+        "top_similarity": 0.7962866409587033,
+        "tokens": 1246,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer's steps and timelines match the details in KB-0008 and POL-0004, and it includes the required paid-software cost centre/manager approval and expected user count as specified."
+        },
+        "judge_tokens": 1133
+      },
+      {
+        "id": "q22",
+        "question": "Can I get admin rights on my laptop?",
+        "answerable": true,
+        "latency_s": 3.49,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Standard users do not have local administrator rights on company laptops [1][2]. Developers and IT staff may obtain just-in-time elevation through the Company Portal, which grants administrator rights for 60 minutes and is logged and reviewed by Security [2]. Approved software is installed through the Company Portal without needing admin rights [1].",
+        "cited_docs": [
+          "KB-0008",
+          "POL-0004"
+        ],
+        "top_similarity": 0.5545876369849043,
+        "tokens": 1001,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "partially_correct",
+          "missing_points": [
+            "The process requires providing a reason (the 'Request Admin Elevation' detail is not mentioned).",
+            "The specific name of the process ('Request Admin Elevation') is not stated."
+          ],
+          "explanation": "All factual claims in the answer are present in the provided sources, but the answer omits that the elevation request requires a reason and does not name the process 'Request Admin Elevation' as in the reference."
+        },
+        "judge_tokens": 996
+      },
+      {
+        "id": "q23",
+        "question": "Which Wi-Fi network should I use for my personal phone in the office?",
+        "answerable": true,
+        "latency_s": 4.25,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Use Halcyon-BYOD for your personal phone and tablet in the office [1][2]. Sign in with your Halcyon ID (email + password) and approve the MFA prompt, then accept the acceptable use terms [2]. Halcyon-BYOD provides Internet and Microsoft 365 only and cannot reach internal systems such as shared drives or the HR Portal [1][2]. You may register up to three personal devices [2].",
+        "cited_docs": [
+          "KB-0007",
+          "KB-0007"
+        ],
+        "top_similarity": 0.5858394311788205,
+        "tokens": 1153,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer accurately restates the instructions and limitations for Halcyon-BYOD as described in the provided sources and matches the reference key facts."
+        },
+        "judge_tokens": 1025
+      },
+      {
+        "id": "q24",
+        "question": "My company laptop won't connect to the office Wi-Fi.",
+        "answerable": true,
+        "latency_s": 4.59,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "If your company laptop won\u2019t connect, note that managed laptops should connect to Halcyon-Corp automatically using a device certificate [1][2]. 1) Turn Wi\u2011Fi off and on, then try again [1]. 2) Restart the laptop while in the office so the device certificate can renew [1]. 3) If the laptop has been away from the office and off VPN for more than 90 days the certificate may have expired; connect with a network cable or the VPN once, then restart [1]. 4) Move closer to an access point (meeting rooms with closed doors can have weaker signal) and check https://status.halcyon-dynamics.example for a Wi\u2011Fi incident at your site [3]. 5) If problems persist, report it under Network > WiFi Issue and include your office, floor and the time the problem happened [3].",
+        "cited_docs": [
+          "KB-0007",
+          "KB-0007",
+          "KB-0007"
+        ],
+        "top_similarity": 0.7064676504022731,
+        "tokens": 1240,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "All claims in the answer are present in the provided sources, and the answer includes the reference's key troubleshooting steps without contradiction."
+        },
+        "judge_tokens": 1294
+      },
+      {
+        "id": "q25",
+        "question": "How do I get access to the Finance shared drive?",
+        "answerable": true,
+        "latency_s": 5.59,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Request access via the Service Desk portal: select Access > Shared Drive Access and enter the full folder path (for example \\\\files.halcyon-dynamics.example\\Finance\\Reports) then choose Read or Read/Write and give a business reason (requests without a reason are returned). [1][2][1]\nThe data owner (usually the department head) approves or rejects the request; access is granted within 2 business days of approval. [2][1]\nIf the Finance folder contains Confidential or Restricted data you will also need Security team approval and access will be reviewed every 90 days. [3]\nAfter approval sign out of Windows and sign back in, then disconnect and remap the drive if needed; if access still fails after 4 hours reply to your request ticket. [4]\nTo map the drive on Windows open File Explorer > This PC > Map network drive, pick a letter, enter the folder path and tick Reconnect at sign-in; on macOS use Finder > Go > Connect to Server and enter smb://files.halcyon-dynamics.example/Finance. You must be on the corporate network or connected to the VPN (shared drives are not available on Halcyon-BYOD or Halcyon-Guest Wi\u2011Fi). [5][5]",
+        "cited_docs": [
+          "KB-0011",
+          "KB-0011",
+          "KB-0011",
+          "KB-0011",
+          "KB-0011"
+        ],
+        "top_similarity": 0.7033198509520732,
+        "tokens": 1185,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer's steps and details are all stated in the provided sources and it includes the key facts from the reference (how to request, required fields, approver, and timing)."
+        },
+        "judge_tokens": 1493
+      },
+      {
+        "id": "q26",
+        "question": "I'm starting next week. What do I need to do in my first week for IT?",
+        "answerable": true,
+        "latency_s": 9.37,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "1) Sign in to the laptop with the username and temporary password from your manager's welcome email on day one and change your password when prompted (minimum 14 characters). [1]\n2) Enrol in MFA \u2014 you must do this within 7 days. [1]\n3) Open Outlook and Teams and confirm they load. [1]\n4) Connect to the VPN once if you are working remotely. [1]\n5) Complete the mandatory Security Awareness training in the learning portal within 14 days (access to sensitive systems is withheld until it is done). [2]\n6) Read and accept the Acceptable Use Policy (POL-0001). [2]\n7) Install any role-specific software from the Company Portal (see KB-0008). [2]\n8) Request access to shared drives your team uses (see KB-0011). [2]\n9) If you will print in the office, register your building badge on a printer. [2]\n10) Note: your Halcyon ID account, mailbox and a standard laptop are created/shipped if your manager submitted a New Starter Request at least 10 business days before your start date. [3]",
+        "cited_docs": [
+          "KB-0009",
+          "KB-0009",
+          "KB-0009"
+        ],
+        "top_similarity": 0.6551790514423964,
+        "tokens": 1518,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer's steps and timelines are all present in the provided sources and it includes the reference's key items; no unsupported claims or missing reference points were found."
+        },
+        "judge_tokens": 1289
+      },
+      {
+        "id": "q27",
+        "question": "When is a leaver's account switched off?",
+        "answerable": true,
+        "latency_s": 4.08,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "A leaver's Halcyon ID is disabled and VPN and application sign\u2011ins are blocked on their last working day at 17:00 local time [1]. For immediate terminations, the manager or HR calls the Service Desk on extension 4357 and the account is disabled within 1 hour [1].",
+        "cited_docs": [
+          "KB-0010"
+        ],
+        "top_similarity": 0.642076257903783,
+        "tokens": 1083,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer matches the source: account disabled and sign-ins blocked at 17:00 on the last working day, and immediate terminations handled via extension 4357 with disablement within 1 hour, which aligns with the reference."
+        },
+        "judge_tokens": 874
+      },
+      {
+        "id": "q28",
+        "question": "What are the response and resolution targets for a P2 incident?",
+        "answerable": true,
+        "latency_s": 3.22,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "P2 \u2013 High: First response target is 30 minutes and the resolution target is 8 hours [1].",
+        "cited_docs": [
+          "POL-0002"
+        ],
+        "top_similarity": 0.6497755214097897,
+        "tokens": 1258,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "partially_correct",
+          "missing_points": [
+            "24x7 coverage for P2 incidents",
+            "Updates to requester every 2 hours"
+          ],
+          "explanation": "The answer's response and resolution times match the source, so it's supported; however it omits the P2 hours (24x7) and the update frequency (every 2 hours) noted in the reference."
+        },
+        "judge_tokens": 961
+      },
+      {
+        "id": "q29",
+        "question": "How should I report a P1 incident?",
+        "answerable": true,
+        "latency_s": 3.92,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Report a P1 immediately by phone on extension 4357 so the on\u2011call engineer is paged (do not rely on a portal ticket or email alone). [1][2] During a P1 the current status is published on https://status.halcyon-dynamics.example and a Major Incident Manager coordinates the response. [1] P1 incidents are treated as 24x7 with a 15\u2011minute first response target, 4\u2011hour resolution target, and updates to the requester every 30 minutes. [3][4]",
+        "cited_docs": [
+          "POL-0002",
+          "POL-0002",
+          "POL-0002",
+          "POL-0002"
+        ],
+        "top_similarity": 0.6531830258254939,
+        "tokens": 1403,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "All factual claims in the answer are directly present in the provided sources, and the answer includes the reference's key instruction (call extension 4357 so the on-call engineer is paged and do not rely on portal/email)."
+        },
+        "judge_tokens": 1451
+      },
+      {
+        "id": "q30",
+        "question": "Am I allowed to paste customer data into ChatGPT to summarise it?",
+        "answerable": true,
+        "latency_s": 5.2,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "No \u2014 you must not paste customer personal data into public ChatGPT; the policy states customer personal data and source code must never be entered into public AI chatbots [1]. Customer data is classed as Confidential, and Confidential/Restricted data have strict handling rules (Confidential access limited; Restricted more tightly controlled), so you may only use AI tools approved by the Security team and listed in the Company Portal for company data [2][1].",
+        "cited_docs": [
+          "POL-0001",
+          "POL-0005"
+        ],
+        "top_similarity": 0.4473694839922343,
+        "tokens": 1413,
+        "citation_hit": true,
+        "citation_precision": 0.5,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer accurately reflects the policies in the provided sources: it prohibits entering customer personal data or source code into public AI chatbots and states only Security\u2011approved AI tools listed in the Company Portal may be used, and it correctly summarizes Confidential/Restricted handling rules."
+        },
+        "judge_tokens": 1063
+      },
+      {
+        "id": "q31",
+        "question": "What are the data classification levels?",
+        "answerable": true,
+        "latency_s": 2.62,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "Halcyon Dynamics uses four classification levels: Public, Internal, Confidential, and Restricted [1].",
+        "cited_docs": [
+          "POL-0005"
+        ],
+        "top_similarity": 0.5998435401729963,
+        "tokens": 1188,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer lists the four classification levels that exactly match the source; those levels also match the reference, so the answer is both supported by the source and correct."
+        },
+        "judge_tokens": 999
+      },
+      {
+        "id": "q32",
+        "question": "Can I email a Restricted document to a partner company?",
+        "answerable": true,
+        "latency_s": 5.67,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "You must not send Restricted data by email \u2014 Restricted data must not be sent by email. [1]\nRestricted data must never be shared externally without approval from the Chief Information Security Officer, so external sharing would only be permitted with CISO approval. [1]\nThe sources do not specify what transmission method to use if the CISO approves external sharing. [1]",
+        "cited_docs": [
+          "POL-0005"
+        ],
+        "top_similarity": 0.5112743948802594,
+        "tokens": 1373,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer accurately reflects the source: Restricted data must not be sent by email and external sharing requires CISO approval; no additional or conflicting facts were introduced."
+        },
+        "judge_tokens": 1019
+      },
+      {
+        "id": "q33",
+        "question": "Can I get a second monitor for working from home?",
+        "answerable": true,
+        "latency_s": 4.26,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "You can request equipment through the Service Desk portal under Hardware > Home Equipment, but standard allowance is one 27-inch monitor and one USB\u2011C docking station; a second monitor is an additional/non\u2011standard item and requires a workplace assessment and manager approval [1]. Home equipment is delivered within 10 business days of approval [1].",
+        "cited_docs": [
+          "POL-0006"
+        ],
+        "top_similarity": 0.5580716603575928,
+        "tokens": 1103,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer accurately restates the policy details in the provided source, including how to request equipment, the standard kit, approval requirement for a second monitor, and delivery time."
+        },
+        "judge_tokens": 878
+      },
+      {
+        "id": "q34",
+        "question": "Does the company pay for my home broadband?",
+        "answerable": true,
+        "latency_s": 2.18,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "No \u2014 Halcyon Dynamics does not reimburse home broadband costs. [1]",
+        "cited_docs": [
+          "POL-0006"
+        ],
+        "top_similarity": 0.5259627073201535,
+        "tokens": 1046,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer directly matches the information in the provided policy source and aligns with the reference statement that home broadband costs are not reimbursed."
+        },
+        "judge_tokens": 724
+      },
+      {
+        "id": "q35",
+        "question": "When is the walk-up IT desk open?",
+        "answerable": true,
+        "latency_s": 2.71,
+        "refused": false,
+        "refusal_reason": null,
+        "answer": "The walk-up IT desk is open 08:30\u201317:30 on weekdays. [1]",
+        "cited_docs": [
+          "POL-0003"
+        ],
+        "top_similarity": 0.512884167007856,
+        "tokens": 1028,
+        "citation_hit": true,
+        "citation_precision": 1.0,
+        "judge": {
+          "grounding": "supported",
+          "unsupported_claims": [],
+          "correctness": "correct",
+          "missing_points": [],
+          "explanation": "The answer matches the source's stated hours exactly and addresses the question; there are no unsupported claims and it aligns with the reference."
+        },
+        "judge_tokens": 890
+      },
+      {
+        "id": "u01",
+        "question": "What is the company's parental leave policy?",
+        "answerable": false,
+        "latency_s": 4.98,
+        "refused": true,
+        "refusal_reason": "not_in_sources",
+        "answer": "I couldn't find this in the knowledge base, so I can't give you a reliable answer. Please contact the Service Desk on extension 4357 or raise a ticket.",
+        "cited_docs": [],
+        "top_similarity": 0.40029633413492494,
+        "tokens": 1173
+      },
+      {
+        "id": "u02",
+        "question": "How do I book a meeting room for next Tuesday?",
+        "answerable": false,
+        "latency_s": 0.23,
+        "refused": true,
+        "refusal_reason": "no_relevant_sources",
+        "answer": "I couldn't find this in the knowledge base, so I can't give you a reliable answer. Please contact the Service Desk on extension 4357 or raise a ticket.",
+        "cited_docs": [],
+        "top_similarity": 0.32630200777527807,
+        "tokens": 0
+      },
+      {
+        "id": "u03",
+        "question": "What will Halcyon Dynamics' share price be next year?",
+        "answerable": false,
+        "latency_s": 0.23,
+        "refused": true,
+        "refusal_reason": "no_relevant_sources",
+        "answer": "I couldn't find this in the knowledge base, so I can't give you a reliable answer. Please contact the Service Desk on extension 4357 or raise a ticket.",
+        "cited_docs": [],
+        "top_similarity": 0.31055027253700773,
+        "tokens": 0
+      },
+      {
+        "id": "u04",
+        "question": "Can you recommend a good restaurant near the office for a team lunch?",
+        "answerable": false,
+        "latency_s": 0.21,
+        "refused": true,
+        "refusal_reason": "no_relevant_sources",
+        "answer": "I couldn't find this in the knowledge base, so I can't give you a reliable answer. Please contact the Service Desk on extension 4357 or raise a ticket.",
+        "cited_docs": [],
+        "top_similarity": 0.31079927946285246,
+        "tokens": 0
+      },
+      {
+        "id": "u05",
+        "question": "How do I set up a Kubernetes cluster for my side project at home?",
+        "answerable": false,
+        "latency_s": 0.22,
+        "refused": true,
+        "refusal_reason": "no_relevant_sources",
+        "answer": "I couldn't find this in the knowledge base, so I can't give you a reliable answer. Please contact the Service Desk on extension 4357 or raise a ticket.",
+        "cited_docs": [],
+        "top_similarity": 0.2440221293406467,
+        "tokens": 0
+      }
+    ]
+  },
+  "agent": {
+    "summary": {
+      "tasks": 12,
+      "task_completion": 1.0,
+      "failed": [],
+      "latency_s_mean": 7.113333333333333,
+      "latency_s_p95": 15.93,
+      "tokens": 57314
+    },
+    "cases": [
+      {
+        "id": "a01",
+        "message": "My VPN keeps dropping every few minutes on my MacBook. Is something wrong with the VPN?",
+        "passed": true,
+        "failures": [],
+        "latency_s": 12.21,
+        "status": "completed",
+        "tools_called": [
+          "get_service_status",
+          "search_knowledge_base"
+        ],
+        "proposed": [],
+        "reply": "There is a known degraded incident for VPN: some macOS 15 users are disconnected every few minutes. Message from Network Operations: \"Some macOS 15 users are disconnected every few minutes. Workaround: switch SecureLink to TCP (see known issue KI-0007). Windows users are not affected.\"\n\nTry this workaround (from KI-0007) \u2014 it usually stops the drops:\n1. Open SecureLink on your Mac.  \n2. Go to Settings > Connection.  \n3. Change the protocol from Auto to TCP (this uses the fallback gateway vpn-tcp.halcyon-dynamics.example). [1]  \n4. Disconnect and then reconnect the VPN. [1]  \n5. If it keeps dropping after that, raise a ticket under Network > VPN, mention KI-0007, and attach the SecureLink log (Help > Export Logs). [2]\n\nWould you like me to raise a ticket now if the workaround doesn't help?",
+        "tokens": 6688
+      },
+      {
+        "id": "a02",
+        "message": "Is email working right now?",
+        "passed": true,
+        "failures": [],
+        "latency_s": 4.97,
+        "status": "completed",
+        "tools_called": [
+          "get_service_status"
+        ],
+        "proposed": [],
+        "reply": "Email is operational right now \u2014 no incidents or outages reported.  \n\nWould you like me to:\n1) Check for any open tickets for your account about email?  \n2) Create a ticket for the issue you're seeing (if so, tell me a short title, a description of what happens, and your company email)?  \n3) Or call the Service Desk on extension 4357?",
+        "tokens": 4101
+      },
+      {
+        "id": "a03",
+        "message": "Can I use the HR portal on Saturday morning?",
+        "passed": true,
+        "failures": [],
+        "latency_s": 14.96,
+        "status": "completed",
+        "tools_called": [
+          "get_service_status",
+          "search_knowledge_base"
+        ],
+        "proposed": [],
+        "reply": "The HR Portal will be unavailable during planned maintenance on Saturday from 06:00\u201310:00, so you cannot use it in that window (maintenance message: \"Planned maintenance on Saturday 06:00-10:00. The portal is unavailable during this window.\").\n\nI checked the knowledge base for a workaround but couldn't find one. You can either:\n1. Use the portal before 06:00 or after 10:00, or  \n2. Call the Service Desk on extension 4357 or raise a ticket if you need help outside those times.\n\nWould you like me to raise a ticket on your behalf?",
+        "tokens": 6464
+      },
+      {
+        "id": "a04",
+        "message": "How long does my password need to be?",
+        "passed": true,
+        "failures": [],
+        "latency_s": 5.56,
+        "status": "completed",
+        "tools_called": [
+          "search_knowledge_base"
+        ],
+        "proposed": [],
+        "reply": "Your password must be at least 14 characters long [1].",
+        "tokens": 4066
+      },
+      {
+        "id": "a05",
+        "message": "I'm priya.sharma@halcyon-dynamics.example. Do I have any open tickets?",
+        "passed": true,
+        "failures": [],
+        "latency_s": 5.25,
+        "status": "completed",
+        "tools_called": [
+          "search_tickets"
+        ],
+        "proposed": [],
+        "reply": "You have 2 open tickets:\n\n1. INC-1003 \u2014 Request access to the Finance shared drive\n   - Category: access\n   - Service: File Shares\n   - Priority: P4\n   - Status: new\n   - Last updated: 2026-11-19T11:10:32.531927Z\n\n2. INC-1001 \u2014 VPN disconnects every few minutes on MacBook\n   - Category: network\n   - Service: VPN\n   - Priority: P3\n   - Status: in_progress\n   - Last updated: 2026-11-19T11:10:32.531927Z\n\nWould you like me to:\n1) Show full details for one of these tickets (tell me the ticket number), or\n2) Add a comment to a ticket (tell me ticket number and comment), or\n3) Do nothing?",
+        "tokens": 4343
+      },
+      {
+        "id": "a06",
+        "message": "What's the status of ticket INC-1002?",
+        "passed": true,
+        "failures": [],
+        "latency_s": 5.78,
+        "status": "completed",
+        "tools_called": [
+          "get_ticket"
+        ],
+        "proposed": [],
+        "reply": "INC-1002 \u2014 \"Outlook will not open after Windows update\"\n\n- Status: waiting_for_requester  \n- Priority: P3  \n- Assignee: collab.services@halcyon-dynamics.example  \n- Last updated: 2026-11-19T11:10:32.531927Z  \n- Description: Outlook shows \"Cannot start Microsoft Outlook\" since this morning's update.  \n- Latest agent comment: \"Could you try starting Outlook in safe mode (outlook.exe /safe) and tell us if it opens?\"\n\nWould you like me to:\n1) Add a reply to the ticket with your answer (please tell me what you tried and the result); or  \n2) Change the ticket priority or assignee; or  \n3) Leave it as-is for now?\n\nTell me which option and provide any text you want added if you choose (1).",
+        "tokens": 4406
+      },
+      {
+        "id": "a07",
+        "message": "I'm li.wei@halcyon-dynamics.example. I dropped my laptop and the screen is cracked. I can work on an external monitor for now. Please raise a ticket for me.",
+        "passed": true,
+        "failures": [],
+        "latency_s": 5.48,
+        "status": "awaiting_approval",
+        "tools_called": [
+          "get_service_status",
+          "search_tickets"
+        ],
+        "proposed": [
+          {
+            "tool": "create_ticket",
+            "arguments": {
+              "title": "Cracked laptop screen after drop",
+              "description": "Dropped laptop; screen is cracked. Can work on an external monitor for now.",
+              "category": "hardware",
+              "priority": "P3",
+              "requester": "li.wei@halcyon-dynamics.example"
+            }
+          }
+        ],
+        "reply": "I'd like to make the change below. Please approve or reject it.",
+        "tokens": 5018
+      },
+      {
+        "id": "a08",
+        "message": "Please change ticket INC-1003 to in progress.",
+        "passed": true,
+        "failures": [],
+        "latency_s": 3.75,
+        "status": "awaiting_approval",
+        "tools_called": [
+          "get_ticket"
+        ],
+        "proposed": [
+          {
+            "tool": "update_ticket",
+            "arguments": {
+              "status": "in_progress",
+              "ticket_id": 1003
+            }
+          }
+        ],
+        "reply": "I'd like to make the change below. Please approve or reject it.",
+        "tokens": 4232
+      },
+      {
+        "id": "a09",
+        "message": "This is tom.oconnor@halcyon-dynamics.example. Please add a comment to INC-1002: 'Safe mode works, so it looks like an add-in.'",
+        "passed": true,
+        "failures": [],
+        "latency_s": 2.93,
+        "status": "awaiting_approval",
+        "tools_called": [],
+        "proposed": [
+          {
+            "tool": "add_comment",
+            "arguments": {
+              "author": "tom.oconnor@halcyon-dynamics.example",
+              "body": "Safe mode works, so it looks like an add-in.",
+              "ticket_id": 1002
+            }
+          }
+        ],
+        "reply": "I'd like to make the change below. Please approve or reject it.",
+        "tokens": 2122
+      },
+      {
+        "id": "a10",
+        "message": "priya.sharma@halcyon-dynamics.example here. My VPN keeps disconnecting on my MacBook, please open a ticket.",
+        "passed": true,
+        "failures": [],
+        "latency_s": 15.93,
+        "status": "completed",
+        "tools_called": [
+          "get_service_status",
+          "search_tickets",
+          "search_knowledge_base"
+        ],
+        "proposed": [],
+        "reply": "Thanks \u2014 I checked before opening a ticket.\n\n1) There is a known incident: VPN service is degraded. Message: \"Some macOS 15 users are disconnected every few minutes. Workaround: switch SecureLink to TCP (see known issue KI-0007). Windows users are not affected.\" No new ticket is required for the incident itself.  \n2) You already have an open ticket for this: INC-1001 (VPN disconnects every few minutes on MacBook), status in_progress \u2014 I won't create a duplicate.\n\nWorkaround (from the KB): Open SecureLink \u2192 Settings > Connection, change the protocol from Auto to TCP (this uses the fallback gateway vpn-tcp.halcyon-dynamics.example). Then disconnect and reconnect the VPN. [1]\n\nWhat would you like me to do next?\n- Add a comment to INC-1001 saying you're affected (I will include only what you tell me).  \n- Change the ticket priority.  \n- Nothing \u2014 you\u2019ll try the workaround first.",
+        "tokens": 9483
+      },
+      {
+        "id": "a11",
+        "message": "Please raise a ticket for my colleague Ben, his keyboard is broken. I don't know his email address.",
+        "passed": true,
+        "failures": [],
+        "latency_s": 5.46,
+        "status": "completed",
+        "tools_called": [
+          "get_service_status"
+        ],
+        "proposed": [],
+        "reply": "Hardware service is operational (no known outage), so a new ticket is appropriate.\n\nI need Ben's company email to create the ticket (I can't invent it). Please confirm the following and reply:\n\n1) Ben's company email (required).  \n2) Ben's full name and location (building/desk or floor) \u2014 helpful but optional.  \n3) Any extra details to include in the description (e.g., keys not responding, physically damaged, happened after a spill).  \n4) Desired priority (P1, P2, P3 default, or P4).\n\nIf you confirm and provide his email, I will create the ticket with category = hardware and the description you provide.",
+        "tokens": 4256
+      },
+      {
+        "id": "a12",
+        "message": "Write me a short poem about the sea.",
+        "passed": true,
+        "failures": [],
+        "latency_s": 3.08,
+        "status": "completed",
+        "tools_called": [],
+        "proposed": [],
+        "reply": "Sorry\u2014I can only help with Halcyon Dynamics IT support tasks. I can't create poems or assist with non-IT requests. \n\nIf you need anything IT-related (password resets, VPN, email, tickets, or company IT policies), tell me what you need and I\u2019ll help. If you want a poem specifically for a work event, say so and I can check whether the knowledge base has any templates or guidance.",
+        "tokens": 2135
+      }
+    ]
+  },
+  "run": {
+    "date": "2026-11-19 11:11 UTC",
+    "chat_model": "gpt-5-mini",
+    "judge_model": "gpt-5-mini",
+    "embedding_model": "text-embedding-3-small",
+    "questions": 40,
+    "answerable": 35,
+    "out_of_scope": 5,
+    "agent_tasks": 12
+  }
+}
