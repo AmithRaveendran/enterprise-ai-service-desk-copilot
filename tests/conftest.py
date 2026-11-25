@@ -2,11 +2,12 @@
 
 Integration tests run against a separate `servicedesk_test` database on the Docker Postgres
 server, so they never touch the data you ingest for real. If Postgres isn't running they
-are skipped rather than failed.
+are skipped rather than failed (except in CI, where they must run).
 """
 
 import hashlib
 import math
+import os
 import re
 from pathlib import Path
 
@@ -142,6 +143,10 @@ def test_database_url() -> str:
             if not exists:
                 conn.execute(text(f'CREATE DATABASE "{TEST_DATABASE}"'))
     except OperationalError:
+        # Locally, skipping is friendlier than 200 errors. In CI (GitHub Actions sets CI=true)
+        # a skip would hide that the integration tests never ran, so fail instead.
+        if os.environ.get("CI"):
+            pytest.fail("Postgres is not reachable, and integration tests must run in CI")
         pytest.skip("Postgres is not running (start it with `docker compose up -d`)")
     finally:
         admin.dispose()

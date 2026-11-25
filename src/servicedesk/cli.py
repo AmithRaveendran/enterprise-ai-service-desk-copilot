@@ -404,7 +404,10 @@ def serve(
     """Run the HTTP API (docs at http://127.0.0.1:8000/docs)."""
     import uvicorn  # imported here so other commands don't pay for loading the web stack
 
-    uvicorn.run("servicedesk.api.app:app", host=host, port=port, reload=reload)
+    # Our middleware logs every request with its ID and duration (api/middleware.py), so
+    # uvicorn's own access log would only repeat it.
+    logging.getLogger("servicedesk").setLevel(logging.INFO)
+    uvicorn.run("servicedesk.api.app:app", host=host, port=port, reload=reload, access_log=False)
 
 
 class McpTransport(StrEnum):
@@ -420,6 +423,10 @@ def mcp(
     ] = McpTransport.stdio,
     host: Annotated[str, typer.Option(help="Interface to listen on (http only).")] = "127.0.0.1",
     port: Annotated[int, typer.Option(help="Port to listen on (http only).")] = 8001,
+    allowed_host: Annotated[
+        list[str] | None,
+        typer.Option(help="Extra Host header to accept, e.g. mcp.example.com:* (http only)."),
+    ] = None,
 ) -> None:
     """Run the MCP server, so MCP clients (Claude Desktop, VS Code, MCP Inspector) can use
     the service desk tools and read the knowledge base.
@@ -450,8 +457,20 @@ def mcp(
     if transport == McpTransport.stdio:
         server.run("stdio")
     else:
+        from mcp.server.transport_security import TransportSecuritySettings
+
+        # DNS-rebinding protection: only accept requests whose Host header is ours, so a
+        # web page in the user's browser can't reach this server through a hostname it
+        # controls. The SDK turns this on by itself only for host=127.0.0.1; in Docker we
+        # listen on 0.0.0.0, so we turn it on explicitly for every host.
+        local = ["127.0.0.1:*", "localhost:*", "[::1]:*"]
+        security = TransportSecuritySettings(
+            enable_dns_rebinding_protection=True,
+            allowed_hosts=local + (allowed_host or []),
+            allowed_origins=[f"http://{h}" for h in local],
+        )
         err_console.print(f"MCP server at http://{host}:{port}/mcp (Ctrl+C to stop)")
-        server.run("streamable-http", host=host, port=port)
+        server.run("streamable-http", host=host, port=port, transport_security=security)
 
 
 class EvalSuite(StrEnum):

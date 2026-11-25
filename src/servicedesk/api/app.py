@@ -4,12 +4,15 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from importlib.metadata import version
 
-from fastapi import FastAPI, Request, status
+from fastapi import Depends, FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from servicedesk.agent.copilot import ChatError, ThreadNotFoundError
 from servicedesk.api.dependencies import close_checkpointer
+from servicedesk.api.middleware import request_context
 from servicedesk.api.routes import ask, chat, desk, health, search
+from servicedesk.api.security import check_production_settings, require_api_key
+from servicedesk.config import get_settings
 from servicedesk.desk.service import ConflictError, DeskError, NotFoundError
 
 # Business-rule errors from the service layer → HTTP status codes. Registered once here,
@@ -40,6 +43,9 @@ async def chat_error_handler(request: Request, exc: Exception) -> JSONResponse:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    # Startup: refuse to serve with unsafe production settings (e.g. no API key). Raising
+    # here stops uvicorn before it accepts a single request.
+    check_production_settings(get_settings())
     yield  # the app serves requests here
     close_checkpointer()  # shutdown: close the conversation store's connection pool
 
@@ -54,13 +60,13 @@ def create_app() -> FastAPI:
         ),
         lifespan=lifespan,
     )
-    app.include_router(health.router)
-    app.include_router(search.router)
-    app.include_router(ask.router)
-    app.include_router(desk.router)
-    app.include_router(chat.router)
+    app.include_router(health.router)  # open: health checks send no credentials
+    protected = [Depends(require_api_key)]  # 401 without a valid key, when one is set
+    for router in (search.router, ask.router, desk.router, chat.router):
+        app.include_router(router, dependencies=protected)
     app.add_exception_handler(DeskError, desk_error_handler)
     app.add_exception_handler(ChatError, chat_error_handler)
+    app.middleware("http")(request_context)  # X-Request-ID + one log line per request
     return app
 
 

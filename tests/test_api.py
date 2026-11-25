@@ -138,7 +138,9 @@ def test_ask_refuses_weak_evidence(client, kb_session_factory):
         {"question": "vpn drops", "doc_type": "docx"},
     ],
 )
-def test_ask_rejects_invalid_requests(client, payload):
+def test_ask_rejects_invalid_requests(client, kb_session_factory, payload):
+    # A fake model, so this passes without an API key too (otherwise /ask is 503 first).
+    use_llm(kb_session_factory, FakeLLM())
     response = client.post("/ask", json=payload)
     assert response.status_code == 422
     assert response.json()["detail"][0]["loc"][0] == "body"

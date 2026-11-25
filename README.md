@@ -1,10 +1,15 @@
 # Enterprise AI Service Desk Copilot
 
+[![CI](https://github.com/AmithRaveendran/enterprise-ai-service-desk-copilot/actions/workflows/ci.yml/badge.svg)](https://github.com/AmithRaveendran/enterprise-ai-service-desk-copilot/actions/workflows/ci.yml)
+
 An agentic AI support assistant for an IT service desk, built with **Python, FastAPI,
 LangGraph, PostgreSQL/pgvector and MCP**.
 
-> Personal portfolio project, developed independently. It is being built in phases.
-> See the roadmap below.
+> Personal portfolio project, developed independently in phases (roadmap below).
+
+**Docs:** [Architecture](docs/architecture.md) · [Security](docs/security.md) ·
+[Deployment](docs/deployment.md) · [Performance](docs/performance.md) ·
+[Learning log](docs/learning-log/)
 
 ## Roadmap
 
@@ -19,7 +24,7 @@ LangGraph, PostgreSQL/pgvector and MCP**.
 | 6 | Human approval for writes, error handling, workflow recovery | ✅ |
 | 7 | MCP server (tools, knowledge base resources, a prompt) | ✅ |
 | 8 | Automated tests + evaluation dataset (retrieval, grounding, task completion) | ✅ |
-| 9 | Containerisation, CI, architecture/security/deployment docs | ⏳ |
+| 9 | Containerisation, CI, architecture/security/deployment docs | ✅ |
 
 ## Sample knowledge base
 
@@ -179,6 +184,28 @@ uv run pytest --cov                        # the test suite with coverage
   sample data (changes are proposed, never approved).
 
 See [docs/learning-log/phase-8.md](docs/learning-log/phase-8.md).
+
+## Running it in Docker
+
+```bash
+docker compose --profile app up -d --build        # db → migrate → api (:8000) + mcp (:8001)
+docker compose run --rm api servicedesk seed      # first run only
+docker compose run --rm api servicedesk ingest    # first run only (needs OPENAI_API_KEY)
+```
+
+One image runs everything: the API by default, and any `servicedesk` command (migrations,
+ingestion, MCP, evals). It is a multi-stage build from the locked dependencies, runs as a
+non-root user and has a health check. Ports are published on localhost only.
+
+**Authentication:** set `API_KEY` and send it as `X-API-Key` (`/health` stays open). With
+`APP_ENV=prod`, the image's default, the API refuses to start without a key. Every response
+carries an `X-Request-ID`, which also appears in the request's log line.
+
+**CI** (GitHub Actions) runs on every push and pull request. It lints, runs the test suite
+against a real pgvector database with a coverage floor, builds the image and checks that the
+stack becomes healthy. A manual workflow runs the retrieval eval with real embeddings. See
+[docs/deployment.md](docs/deployment.md) and
+[docs/learning-log/phase-9.md](docs/learning-log/phase-9.md).
 
 ## License
 

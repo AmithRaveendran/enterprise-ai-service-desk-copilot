@@ -7,7 +7,7 @@ validates types, and keeps secrets wrapped in SecretStr so they don't leak into 
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -15,6 +15,17 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     app_env: Literal["dev", "test", "prod"] = "dev"
+
+    # HTTP API authentication: callers send it in the X-API-Key header. Optional in dev;
+    # with APP_ENV=prod the API refuses to start without one (see api/security.py).
+    api_key: SecretStr | None = None
+
+    @field_validator("api_key", mode="before")
+    @classmethod
+    def _empty_key_is_no_key(cls, value: object) -> object:
+        # `API_KEY=` (as in .env.example) means "not set". Without this it would be an empty
+        # key, and every request would be refused.
+        return None if isinstance(value, str) and not value.strip() else value
 
     database_url: str = "postgresql+psycopg://servicedesk:servicedesk@localhost:5432/servicedesk"
 
